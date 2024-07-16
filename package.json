@@ -9,11 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.5",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.44.4",
-    "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18",
+    "classnames": "^2.5.1",
+    "next": "^14.2.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "zustand": "^4.5.4"
   },
   "devDependencies": {
