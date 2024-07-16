@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import useUserStore from "@/lib/useStore";
 import styled from '@emotion/styled';
-import Carousel from '@/components/Carousel';
+import Carousel from '@/components/carousel/Carousel';
 
 export default function Home() {
     const { user, logout} = useUserStore()  /* 用户状态 */
