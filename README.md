@@ -50,7 +50,7 @@ module.exports = {
 }
 ```
 
-- 将`src/app/globals.css`修改如下：
+将`src/app/globals.css`修改如下：
 
 ```
 @tailwind base;
@@ -58,7 +58,7 @@ module.exports = {
 @tailwind utilities;
 ```
 
-打开`src/app/page.tsx`，将内容修改如下，这里，我们在 classname 中通过使用 tailwindcss 提供的组件便能够直接操控 css 样式，是不是方便了不少。
+打开`src/app/page.tsx`，将内容修改如下，这里，我们在 classname 中通过使用 tailwindcss 提供的组件便能够直接操控 css 样式.
 
 ```
 export default function Home() {
@@ -66,4 +66,4 @@ export default function Home() {
 }
 ```
 
-运行`npm run dev`，进入本地的3000端口，如果页面正确展现了==红色的 hello world== ，即设置成功。
+运行`npm run dev`，进入本地的3000端口，如果页面正确展现了红色的 hello world，即设置成功。
