@@ -1,8 +1,0 @@
-/* background */
-.bg-local-image {
-  background-image: url('picture\next.svg');
-  background-size: cover;
-  background-position: center;
-  min-height: 100vh; /* Ensure the background covers the full viewport height */
-}
-  
