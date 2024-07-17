@@ -20,7 +20,6 @@ const BackgroundDiv = styled.div`
   justify-content: center;
   align-items: center; /* Center the form container */
   padding: 2rem;
-  overflow: hidden;
 `;
 //白色半透明框
 const FormContainer = styled.div`
@@ -29,16 +28,20 @@ const FormContainer = styled.div`
   border-radius: 25px;
   border: 2px solid #000; 
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.55);
-  height: 100%
+  height: 100%;
   width: 100%; /* Adjust to the desired width */
   max-height: 200px;
   max-width: 5000px; /* Adjust to the desired max width */
   animation: slideUp 0.6s ease-out forwards;
   margin-bottom: 2rem; /* Add vertical space between containers */
-  overflow: hidden;
+  transition: transform 0.3s ease; /* Smooth transition for transform */
   
   &:last-child {
-    margin-bottom: 5; /* Remove margin from the last container */
+    margin-bottom: 0; /* Remove margin from the last container */
+  }
+
+  &:hover {
+    transform: scale(1.05); /* Scale up to 105% of the original size */
   }
 
   @keyframes slideUp {
@@ -59,6 +62,18 @@ const imaStyle: CSSProperties = {
   height: 'auto', // 保持图片的高度自动调整
   objectFit: 'cover' // 保持图片的比例
 };
+
+//按钮设置
+const but_Style = {
+  backgroundImage: 'but.png', 
+  backgroundSize: 'cover', // 确保图片覆盖整个按钮
+  backgroundPosition: 'center', // 将图片置于按钮中心
+  border: 'none', 
+  width: '100px',
+  height: '50px',
+  cursor: 'ns-resize' 
+};
+
 
 interface CustomElementProps {
   imageUrl: string;
@@ -125,7 +140,22 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                 <input type="text" placeholder="Enter text here" />
               </div>
               <div className="ml-4">
-                <button style={buttonStyle}>Button</button>
+                <button style={but_Style}>Button</button>
+              </div>
+              
+            </div>
+          </FormContainer>
+
+          <FormContainer>
+            <div className="flex items-center">
+              <div className="mr-4">
+                <img src="fengmian2.jpg" alt="Image" style={imaStyle} />
+              </div>
+              <div className="flex-1">
+                <input type="text" placeholder="Enter text here" />
+              </div>
+              <div className="ml-4">
+                <button style={but_Style}>Button</button>
               </div>
               
             </div>
@@ -140,22 +170,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                 <input type="text" placeholder="Enter text here" />
               </div>
               <div className="ml-4">
-                <button style={buttonStyle}>Button</button>
-              </div>
-              
-            </div>
-          </FormContainer>
-
-          <FormContainer>
-            <div className="flex items-center">
-              <div className="mr-4">
-                <img src="fengmian1.jpg" alt="Image" style={imaStyle} />
-              </div>
-              <div className="flex-1">
-                <input type="text" placeholder="Enter text here" />
-              </div>
-              <div className="ml-4">
-                <button style={buttonStyle}>Button</button>
+                <button style={but_Style}></button>
               </div>
               
             </div>
@@ -169,56 +184,3 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
 };
 
 export default CustomElement;
-
-
-// export default function Wishlist() {
-
-//   const { user, logout} = useUserStore()  /* 用户状态 */
-
-  // return (
-  //   <BackgroundDiv>
-  //       <div className="text-x text-gray-900 w-full">
-  //         {/* 导航栏 */}
-  //         <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between w-full">   {/* 导航栏 */}
-  //             <div className="text-white flex items-center space-x-4">
-  //                 <a href="#">
-  //                     <img src="https://store.akamai.steamstatic.com/public/shared/images/header/logo_steam.svg?t=962016" width="176" height="44" alt="Steam 主页链接"/>
-  //                 </a>
-  //                 <ul className="flex items-center space-x-6">
-  //                     <li>
-  //                         <a href="#" className="hover:text-gray-400 text-white">商店</a>
-  //                     </li>
-  //                     {/* <li>
-  //                         <a href="#" className="hover:text-gray-400 text-white">库</a>
-  //                     </li> */}
-  //                     <li>
-  //                         <a href="#" className="hover:text-gray-400 text-white">username</a>
-  //                     </li>
-  //                     <li>
-  //                         <a href="#" className="hover:text-gray-400 text-white">收藏</a>
-  //                     </li>
-  //                     <li>
-  //                         <a href="#" className="hover:text-gray-400 text-white">排行榜</a>
-  //                     </li>
-  //                 </ul>
-  //             </div>
-                    
-  //             <div className="flex flex-col justify-center space-y-2">
-  //                 <label htmlFor="#" className="text-xl text-white px-2">username</label>
-  //                 <Link href="/login" className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline" onClick={() => logout()}>退出账户</Link>
-  //             </div>
-  //         </nav>
-  //       </div>
-
-  //       <div className="container mx-auto my-10 flex-1 rounded items-center justify-between w-full">
-  //         <FormContainer>
-  //         {/* 在这里书写你的代码 */}
-  //         </FormContainer>
-  //       </div>
-
-
-
-  //     </BackgroundDiv>
-
-//   );
-//   }
