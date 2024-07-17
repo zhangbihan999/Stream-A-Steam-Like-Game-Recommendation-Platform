@@ -9,7 +9,7 @@ export default function Home() {
 
     // 将 SVG 内容嵌入 styled-component
     const BackgroundDiv = styled.div`
-    background-image: url('/fengmian2.jpg');
+    background-image: url('fengmian2.jpg');
     background-size: cover;
     background-position: center;
     min-height: 100vh;
@@ -17,6 +17,9 @@ export default function Home() {
     flex-direction: column;
     justify-content: center;
     `;
+
+    /* 轮播图 */
+    
 
     return (
       <BackgroundDiv>
@@ -71,26 +74,6 @@ export default function Home() {
                             新鲜推荐
                         </a>
                     </li>
-                    <li>
-                        <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                            类别
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                            点数商店
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                            新闻
-                      </a>
-                    </li>
-                    <li>
-                        <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                            实验室
-                        </a>
-                    </li>
                 </ul>
               
                 <div className="relative">
@@ -105,6 +88,8 @@ export default function Home() {
           <div className="flex container items-center justify-center py-16">
             <Carousel></Carousel>
           </div>
+
+          <div></div>
         </div> {/* end container */}
       </BackgroundDiv>
     )
