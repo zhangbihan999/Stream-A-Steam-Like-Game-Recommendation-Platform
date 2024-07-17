@@ -3,6 +3,7 @@ import Link from 'next/link';
 import useUserStore from "@/lib/useStore";
 import styled from '@emotion/styled';
 import Carousel from '@/components/carousel/Carousel';
+import Scroll from '@/components/scroll/Scroll'
 
 export default function Home() {
     const { user, logout} = useUserStore()  /* 用户状态 */
@@ -18,8 +19,6 @@ export default function Home() {
     justify-content: center;
     `;
 
-    /* 轮播图 */
-    
 
     return (
       <BackgroundDiv>
@@ -27,9 +26,13 @@ export default function Home() {
           {/* 导航栏 */}
           <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between ">   {/* 导航栏 */}
               <div className="text-white flex items-center space-x-4">
+                <div className='flex flex-row items-center pr-4'>
                   <a href="#">
-                      <img src="https://store.akamai.steamstatic.com/public/shared/images/header/logo_steam.svg?t=962016" width="176" height="44" alt="Steam 主页链接"/>
+                      <img src="/game new.svg" width="80" height="35" alt="Steam 主页链接"/>
                   </a>
+                  <label htmlFor="#" className='text-2xl'>STREAM</label>
+                </div>
+                  
                   <ul className="flex items-center space-x-6">
                       <li>
                           <a href="#" className="hover:text-gray-400 text-white">商店</a>
@@ -74,26 +77,6 @@ export default function Home() {
                             新鲜推荐
                         </a>
                     </li>
-                    <li>
-                        <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                            类别
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                            点数商店
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                            新闻
-                      </a>
-                    </li>
-                    <li>
-                        <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                            实验室
-                        </a>
-                    </li>
                 </ul>
               
                 <div className="relative">
@@ -105,8 +88,24 @@ export default function Home() {
             </div>
           </div> 
 
-          <div className="flex container items-center justify-center py-16">
+          <div className="flex container items-center justify-center pt-16 pb-0">
             <Carousel></Carousel>
+          </div>
+
+          <div className='pb-20'>
+            <Scroll></Scroll>           
+          </div>
+          
+          <div className='w-11/12 grid grid-cols-3 gap-4 mx-auto'>
+            <div>
+                <img src="/fengmian1.jpg" alt="" />
+            </div>
+            <div>
+                <img src="/fengmian1.jpg" alt="" />
+            </div>
+            <div>
+                <img src="/fengmian1.jpg" alt="" />
+            </div>
           </div>
         </div> {/* end container */}
       </BackgroundDiv>
