@@ -30,8 +30,9 @@ export default function Home() {
 
     // 将 SVG 内容嵌入 styled-component
     const BackgroundDiv = styled.div`
-    background-image: url('fengmian2.jpg');
+    background-image: url('/fengmian2.jpg');
     background-size: cover;
+    background-attachment: fixed; /* 保持背景图位置固定 */
     background-position: center;
     min-height: 100vh;
     display: flex;
