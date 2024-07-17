@@ -41,18 +41,7 @@ const FormContainer = styled.div`
   }
 
   &:hover {
-    transform: scale(1.05); /* Scale up to 105% of the original size */
-  }
-
-  @keyframes slideUp {
-    from {
-      transform: translateY(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    transform: scale(1.02); /* Scale up to 105% of the original size */
   }
 `;
 
