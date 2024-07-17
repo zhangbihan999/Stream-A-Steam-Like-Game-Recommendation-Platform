@@ -45,6 +45,16 @@ const AnimatedInput = styled.input`
   }
 `;
 
+// 深色按钮
+const DarkButton = styled.button`
+  background-color: #333; /* 深灰色背景 */
+  color: #fff; /* 白色文字 */
+  &:hover {
+    background-color: #444; /* 鼠标悬浮时更深的灰色 */
+  }
+`;
+
+
 export default function Home() {
   const [mode, setMode] = useState('User');
   const [authorityCode, setAuthorityCode] = useState('');
@@ -91,7 +101,7 @@ export default function Home() {
   return (
     <BackgroundDiv>
       <FormContainer>
-        <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="flex min-h-full flex-col justify-center px-6 pt-6 pb-12 lg:px-8">
           {/* <div className="sm:mx-auto sm:w-full sm:max-w-sm">
             <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">注册</h2>
           </div> */}
@@ -122,7 +132,7 @@ export default function Home() {
               </div>
     
               <div>
-                <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">注册</button>
+                <DarkButton type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">注册</DarkButton>
               </div>
             </form>
 
