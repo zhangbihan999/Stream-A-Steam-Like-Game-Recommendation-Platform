@@ -48,9 +48,9 @@ export default function Wishlist() {
 
   return (
     <BackgroundDiv>
-        <div className="text-x text-gray-900">
+        <div className="text-x text-gray-900 w-full">
           {/* 导航栏 */}
-          <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between ">   {/* 导航栏 */}
+          <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between w-full">   {/* 导航栏 */}
               <div className="text-white flex items-center space-x-4">
                   <a href="#">
                       <img src="https://store.akamai.steamstatic.com/public/shared/images/header/logo_steam.svg?t=962016" width="176" height="44" alt="Steam 主页链接"/>
@@ -132,56 +132,48 @@ export default function Wishlist() {
 
           
         </div> {/* end container */}
+
+
+
       </BackgroundDiv>
 
 
     // <BackgroundDiv>
       
-    //   <div className="responsive_header">
-    //     <div className="responsive_header_content">
-    //       <div id="responsive_menu_logo">
-    //         <img src="https://store.akamai.steamstatic.com/public/shared/images/responsive/header_menu_hamburger.png" height="100%" alt="Menu" />
-    //       </div>
-    //       <div className="responsive_header_logo">
-    //         <a href="https://store.steampowered.com/?snr=1_5_9__global-responsive-menu">
-    //           <img src="https://store.akamai.steamstatic.com/public/shared/images/responsive/header_logo.png" height="36" alt="STEAM" />
-    //         </a>
-    //       </div>
-    //     </div>
-    //   </div>
+      
     //   <FormContainer>
-    //     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-    //       <Head>
-    //         <title>愿望单 - WNZHENG1125</title>
-    //         <link rel="icon" href="/favicon.ico" />
-    //       </Head>
+      //   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
+      //     <Head>
+      //       <title>愿望单 - WNZHENG1125</title>
+      //       <link rel="icon" href="/favicon.ico" />
+      //     </Head>
 
-    //       <main style={{ maxWidth: '800px', width: '100%' }}>
-    //         <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>WNZHENG1125 的愿望单</h1>
-    //         <input type="text" placeholder="按名称或标签搜索" style={{ width: '100%', padding: '10px', marginBottom: '20px', border: '1px solid #ccc', borderRadius: '5px' }} />
+      //     <main style={{ maxWidth: '800px', width: '100%' }}>
+      //       <h1 style={{ fontSize: '24px', marginBottom: '20px' }}>WNZHENG1125 的愿望单</h1>
+      //       <input type="text" placeholder="按名称或标签搜索" style={{ width: '100%', padding: '10px', marginBottom: '20px', border: '1px solid #ccc', borderRadius: '5px' }} />
 
-    //         {/* 游戏列表 */}
-    //         <div style={{ width: '100%' }}>
-    //           {/* 游戏项 */}
-    //           <div style={{ border: '1px solid #eee', padding: '15px', marginBottom: '20px', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-    //             <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Counter-Strike 2</h2>
-    //             <p>特别好评</p>
-    //             <p>￥ 103.00</p>
-    //             <p>第一人称射击 射击 多人 竞技 动作</p>
-    //             <p>发行日期：2012年8月22日</p>
-    //             <button style={{ padding: '10px 20px', border: 'none', borderRadius: '5px', backgroundColor: '#007bff', color: 'white', cursor: 'pointer', fontSize: '16px' }}>添加至购物车</button>
-    //             <p style={{ marginTop: '10px' }}>添加日期：2024/7/17 (移除)</p>
-    //           </div>
-    //           {/* 其他游戏项... */}
-    //         </div>
-    //       </main>
+      //       {/* 游戏列表 */}
+      //       <div style={{ width: '100%' }}>
+      //         {/* 游戏项 */}
+      //         <div style={{ border: '1px solid #eee', padding: '15px', marginBottom: '20px', borderRadius: '5px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+      //           <h2 style={{ fontSize: '20px', marginBottom: '10px' }}>Counter-Strike 2</h2>
+      //           <p>特别好评</p>
+      //           <p>￥ 103.00</p>
+      //           <p>第一人称射击 射击 多人 竞技 动作</p>
+      //           <p>发行日期：2012年8月22日</p>
+      //           <button style={{ padding: '10px 20px', border: 'none', borderRadius: '5px', backgroundColor: '#007bff', color: 'white', cursor: 'pointer', fontSize: '16px' }}>添加至购物车</button>
+      //           <p style={{ marginTop: '10px' }}>添加日期：2024/7/17 (移除)</p>
+      //         </div>
+      //         {/* 其他游戏项... */}
+      //       </div>
+      //     </main>
 
-    //       {/* 页脚 */}
-    //       <footer style={{ marginTop: '20px', textAlign: 'center', padding: '10px', backgroundColor: '#f7f7f7', color: '#333' }}>
-    //         © 2024 WNZHENG1125. All rights reserved.
-    //       </footer>
-    //     </div>
-    //   </FormContainer>
+      //     {/* 页脚 */}
+      //     <footer style={{ marginTop: '20px', textAlign: 'center', padding: '10px', backgroundColor: '#f7f7f7', color: '#333' }}>
+      //       © 2024 WNZHENG1125. All rights reserved.
+      //     </footer>
+      //   </div>
+      // </FormContainer>
     // </BackgroundDiv>
   );
   }
