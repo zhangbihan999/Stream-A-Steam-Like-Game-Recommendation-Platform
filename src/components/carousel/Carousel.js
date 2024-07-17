@@ -5,6 +5,7 @@ import './carousel.css';
 
 export default function Carousel() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const images = [
     '/fengmian1.jpg',
     '/fengmian2.jpg',
@@ -22,15 +23,24 @@ export default function Carousel() {
     setCurrentSlide(newSlide);
   };
 
+  const handleMouseEnter = () => {
+    setIsPaused(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsPaused(false);
+  };
+
   useEffect(() => {
+    if (isPaused) return; // 如果暂停则不设置计时器
     const interval = setInterval(() => {
       handleNextSlide();
-    }, 3000); // 每三秒切换一次
+    }, 1000); // 每五秒切换一次
 
     return () => {
       clearInterval(interval);
     };
-  }, [currentSlide]);
+  }, [currentSlide, isPaused]);
 
   return (
     <div className="relative w-11/12 mx-auto">
@@ -50,12 +60,14 @@ export default function Carousel() {
               className={`carousel-item ${index === currentSlide ? 'active' : ''} ${
                 index === (currentSlide - 1 + images.length) % images.length ? 'previous' : ''
               } ${index === (currentSlide + 1) % images.length ? 'next' : ''}`}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
             >
               <img
                 src={image}
                 layout="fill"
                 objectFit="contain"
-                className="animate-fadeIn"
+                className="animate-fadeIn hover:cursor-pointer"
                 alt={`slide ${index}`}
               />
             </div>
