@@ -65,13 +65,20 @@ const imaStyle: CSSProperties = {
 
 //按钮设置
 const but_Style = {
-  backgroundImage: 'but.png', 
+  backgroundImage: 'butt.png', 
   backgroundSize: 'cover', // 确保图片覆盖整个按钮
   backgroundPosition: 'center', // 将图片置于按钮中心
   border: 'none', 
   width: '100px',
   height: '50px',
   cursor: 'ns-resize' 
+};
+const ImageButton = ({ imageUrl, onClick }) => {
+  return (
+    <button onClick={onClick} style={{ border: 'none', background: 'none' }}>
+      <img src="butt.png" alt="Image Button" style={{ cursor: 'ns-resize',  width: '35px', height: '50px' }} />
+    </button>
+  );
 };
 
 
@@ -81,19 +88,19 @@ interface CustomElementProps {
 }
 
 const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl }) => {
-  const [imageStyle, setImageStyle] = useState<React.CSSProperties>({});
-  const [buttonStyle, setButtonStyle] = useState<React.CSSProperties>({});
+  // const [imageStyle, setImageStyle] = useState<React.CSSProperties>({});
+  // const [buttonStyle, setButtonStyle] = useState<React.CSSProperties>({});
   const { user, logout} = useUserStore()
 
-  useEffect(() => {
-    fetch(imageUrl)
-      .then(response => response.json())
-      .then(data => setImageStyle(data));
+  // useEffect(() => {
+  //   fetch(imageUrl)
+  //     .then(response => response.json())
+  //     .then(data => setImageStyle(data));
     
-    fetch(buttonStyleUrl)
-      .then(response => response.json())
-      .then(data => setButtonStyle(data));
-  }, [imageUrl, buttonStyleUrl]);
+  //   fetch(buttonStyleUrl)
+  //     .then(response => response.json())
+  //     .then(data => setButtonStyle(data));
+  // }, [imageUrl, buttonStyleUrl]);
 
   return (
     <BackgroundDiv>
@@ -170,7 +177,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                 <input type="text" placeholder="Enter text here" />
               </div>
               <div className="ml-4">
-                <button style={but_Style}></button>
+                <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
               </div>
               
             </div>
