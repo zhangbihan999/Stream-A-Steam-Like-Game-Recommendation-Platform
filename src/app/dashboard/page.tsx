@@ -5,28 +5,24 @@ import styled from '@emotion/styled';
 import Carousel from '@/components/carousel/Carousel';
 import Scroll from '@/components/scroll/Scroll'
 import { useEffect, useState } from 'react';
+import { supabase } from "@/lib/api";
 
 export default function Home() {
     const { user, setUser, logout } = useUserStore();  /* 用户状态 */
     const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
+    const [games, setGames] = useState([]); // 存储游戏数据
 
-    useEffect(() => {
-        // 确保组件在客户端渲染
-        setIsHydrated(true);
-        // 检查 localStorage 中是否有用户数据
-        const storedUserString = localStorage.getItem('user-storage');
-        if (storedUserString) {
-          const storedUser = JSON.parse(storedUserString);
-          if (storedUser && storedUser.state && storedUser.state.user) {
-            setUser(storedUser.state.user);
-          }
+    // 从 Supabase 获取游戏数据
+    const fetchGames = async () => {
+        const { data, error } = await supabase
+            .from('game')
+            .select('*');
+        if (error) {
+            console.error('Error fetching games:', error);
+        } else {
+            setGames(data);
         }
-      }, [setUser]);
-    
-    if (!isHydrated) {
-        // 避免客户端和服务端渲染结果不一致的问题
-        return null;
-    }
+    };
 
     // 将 SVG 内容嵌入 styled-component
     const BackgroundDiv = styled.div`
@@ -39,7 +35,25 @@ export default function Home() {
     flex-direction: column;
     justify-content: center;
     `;
-
+    useEffect(() => {
+        // 确保组件在客户端渲染
+        setIsHydrated(true);
+        // 检查 localStorage 中是否有用户数据
+        const storedUserString = localStorage.getItem('user-storage');
+        if (storedUserString) {
+          const storedUser = JSON.parse(storedUserString);
+          if (storedUser && storedUser.state && storedUser.state.user) {
+            setUser(storedUser.state.user);
+          }
+        }
+        // 获取游戏数据
+        fetchGames();
+      }, [setUser]);
+    
+    if (!isHydrated) {
+        // 避免客户端和服务端渲染结果不一致的问题
+        return null;
+    }
 
     return (
       <BackgroundDiv>
@@ -117,16 +131,15 @@ export default function Home() {
             <Scroll></Scroll>           
           </div>
           
+          {/* 展示区域 */}
           <div className='w-11/12 grid grid-cols-3 gap-4 mx-auto'>
-            <div>
-                <img src="/fengmian1.jpg" alt="" />
-            </div>
-            <div>
-                <img src="/fengmian1.jpg" alt="" />
-            </div>
-            <div>
-                <img src="/fengmian1.jpg" alt="" />
-            </div>
+            {games.map((game, index) => (
+                game.face_img ? (
+                    <div key={index} className='w-full'>
+                        <img src={game?.face_img} alt={`Game ${index}`} className='w-full h-full object-cover hover:cursor-pointer hover:opacity-75'/>
+                    </div>
+                ) : null
+            ))}
           </div>
         </div> {/* end container */}
       </BackgroundDiv>
