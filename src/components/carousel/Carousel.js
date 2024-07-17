@@ -25,7 +25,7 @@ export default function Carousel() {
   useEffect(() => {
     const interval = setInterval(() => {
       handleNextSlide();
-    }, 3000); // 每三秒切换一次
+    }, 5000); // 每三秒切换一次
 
     return () => {
       clearInterval(interval);
