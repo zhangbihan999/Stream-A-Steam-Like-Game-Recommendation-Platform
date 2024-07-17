@@ -15,7 +15,15 @@ const BackgroundDiv = styled.div`
     justify-content: center;
 `;
 
-const Stars = React.memo(({ hoverRating, currentRating, handleMouseOver, handleMouseLeave, handleClick }) => {
+type StarsProps = {
+    hoverRating: number;
+    currentRating: number;
+    handleMouseOver: (index: number) => void;
+    handleMouseLeave: () => void;
+    handleClick: (index: number) => void;
+};
+
+const Stars: React.FC<StarsProps> = React.memo(({ hoverRating, currentRating, handleMouseOver, handleMouseLeave, handleClick }) => {
     const stars = [];
     for (let i = 1; i <= 10; i++) {
         stars.push(
@@ -85,7 +93,6 @@ function GameDetail() {
         );
     };
 
-
     useEffect(() => {
         if (!isPaused) {
             const interval = setInterval(() => {
@@ -100,11 +107,11 @@ function GameDetail() {
         setMainImage(thumbnails[currentThumbnailIndex].src);
     }, [currentThumbnailIndex, thumbnails]);
 
-    const handleThumbnailClick = (index) => {
+    const handleThumbnailClick = (index: number) => {
         setCurrentThumbnailIndex(index);
     };
 
-    const handleMouseOver = useCallback((index) => {
+    const handleMouseOver = useCallback((index: number) => {
         setHoverRating(index);
     }, []);
 
@@ -112,7 +119,7 @@ function GameDetail() {
         setHoverRating(0);
     }, []);
 
-    const handleClick = useCallback((index) => {
+    const handleClick = useCallback((index: number) => {
         setCurrentRating(index);
     }, []);
 
@@ -159,7 +166,7 @@ function GameDetail() {
                                 <a href="#" className="hover:text-gray-400 text-white">商店</a>
                             </li>
                             <li>
-                                <a href="#" className="hover:text-gray-400 text-white">username</a>
+                                <a href="#" className="hover:text-gray-400 text-white">{user?.name}</a>
                             </li>
                             <li>
                                 <a href="#" className="hover:text-gray-400 text-white">收藏</a>
@@ -171,7 +178,7 @@ function GameDetail() {
                     </div>
 
                     <div className="flex flex-col justify-center space-y-2">
-                        <label htmlFor="#" className="text-xl text-white px-2">username</label>
+                        <label htmlFor="#" className="text-xl text-white px-2">{user?.name}</label>
                         <Link href="/login" className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline" onClick={() => logout()}>退出账户</Link>
                     </div>
                 </nav>
@@ -190,26 +197,6 @@ function GameDetail() {
                             <li>
                                 <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
                                     新鲜推荐
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                                    类别
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                                    点数商店
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                                    新闻
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                                    实验室
                                 </a>
                             </li>
                         </ul>
@@ -247,7 +234,7 @@ function GameDetail() {
                             <form onSubmit={handleCommentSubmit}>
                                 <textarea
                                     className="w-full p-2 mb-4 border border-gray-600 rounded-lg text-gray-900"
-                                    rows="2"
+                                    rows={2}
                                     placeholder="写下你的评论..."
                                     value={comment}
                                     onChange={handleCommentChange}

@@ -1,9 +1,16 @@
-import { create } from 'zustand';
+import create from 'zustand';
+import { persist } from 'zustand/middleware';
 
-const useUserStore = create((set) => ({
-  user: null,  // 初始用户状态为空
-  setUser: (user) => set({ user }),  // 更新用户信息
-  logout: () => set({ user: null }),  // 用户登出，清空用户信息
-}));
+const useUserStore = create(persist(
+  (set) => ({
+    user: null,
+    setUser: (user) => set({ user }),
+    logout: () => set({ user: null })
+  }),
+  {
+    name: 'user-storage', // 存储的名称，用于 localStorage 的键名
+    getStorage: () => localStorage, // 使用 localStorage
+  }
+));
 
 export default useUserStore;
