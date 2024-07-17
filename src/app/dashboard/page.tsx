@@ -4,9 +4,29 @@ import useUserStore from "@/lib/useStore";
 import styled from '@emotion/styled';
 import Carousel from '@/components/carousel/Carousel';
 import Scroll from '@/components/scroll/Scroll'
+import { useEffect, useState } from 'react';
 
 export default function Home() {
-    const { user, logout} = useUserStore()  /* 用户状态 */
+    const { user, setUser, logout } = useUserStore();  /* 用户状态 */
+    const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
+
+    useEffect(() => {
+        // 确保组件在客户端渲染
+        setIsHydrated(true);
+        // 检查 localStorage 中是否有用户数据
+        const storedUserString = localStorage.getItem('user-storage');
+        if (storedUserString) {
+          const storedUser = JSON.parse(storedUserString);
+          if (storedUser && storedUser.state && storedUser.state.user) {
+            setUser(storedUser.state.user);
+          }
+        }
+      }, [setUser]);
+    
+    if (!isHydrated) {
+        // 避免客户端和服务端渲染结果不一致的问题
+        return null;
+    }
 
     // 将 SVG 内容嵌入 styled-component
     const BackgroundDiv = styled.div`
@@ -41,7 +61,7 @@ export default function Home() {
                           <a href="#" className="hover:text-gray-400 text-white">库</a>
                       </li> */}
                       <li>
-                          <a href="#" className="hover:text-gray-400 text-white">username</a>
+                          <a href="#" className="hover:text-gray-400 text-white">{user?.name}</a>
                       </li>
                       <li>
                           <a href="#" className="hover:text-gray-400 text-white">收藏</a>
@@ -53,7 +73,7 @@ export default function Home() {
               </div>
                     
               <div className="flex flex-col justify-center space-y-2">
-                  <label htmlFor="#" className="text-xl text-white px-2">username</label>
+                  <label htmlFor="#" className="text-xl text-white px-2">{user?.name}</label>
                   <Link href="/login" className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline" onClick={() => logout()}>退出账户</Link>
               </div>
           </nav>
@@ -92,7 +112,7 @@ export default function Home() {
             <Carousel></Carousel>
           </div>
 
-          <div className='pb-20'>
+          <div className='pt-4 pb-20'>
             <Scroll></Scroll>           
           </div>
           
