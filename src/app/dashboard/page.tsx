@@ -6,6 +6,7 @@ import Carousel from '@/components/carousel/Carousel';
 import Scroll from '@/components/scroll/Scroll'
 import { useEffect, useState } from 'react';
 
+
 export default function Home() {
     const { user, setUser, logout } = useUserStore();  /* 用户状态 */
     const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
@@ -114,6 +115,7 @@ export default function Home() {
 
           <div className='pt-4 pb-20'>
             <Scroll></Scroll>           
+            
           </div>
           
           <div className='w-11/12 grid grid-cols-3 gap-4 mx-auto'>
