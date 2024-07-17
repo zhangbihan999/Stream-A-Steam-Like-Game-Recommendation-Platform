@@ -50,15 +50,14 @@ const Stars: React.FC<StarsProps> = React.memo(({ hoverRating, currentRating, ha
 Stars.displayName = 'Stars';
 
 function GameDetail() {
-    const { user, logout } = useUserStore();  /* 用户状态 */
-
+    const { user, setUser, logout } = useUserStore();  /* 用户状态 */
+    const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
     const thumbnails = [
         { src: '/fengmian1.jpg', alt: '小图1' },
         { src: '/fengmian2.jpg', alt: '小图2' },
         { src: '/fengmian1.jpg', alt: '小图3' },
         { src: '/fengmian2.jpg', alt: '小图4' }
     ]; // 小图数组
-
     const [mainImage, setMainImage] = useState(thumbnails[0].src); // 初始主展示图设为第一个小窗图
     const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0); // 当前轮播图索引
     const [currentRating, setCurrentRating] = useState(0); // 当前评分
@@ -69,7 +68,6 @@ function GameDetail() {
     const [comments, setComments] = useState([]); // 评论列表状态
     const [isFavorite, setIsFavorite] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-
     const renderFavoriteButton = () => {
         return (
             <svg
@@ -92,20 +90,6 @@ function GameDetail() {
             </svg>
         );
     };
-
-    useEffect(() => {
-        if (!isPaused) {
-            const interval = setInterval(() => {
-                setCurrentThumbnailIndex((prevIndex) => (prevIndex + 1) % thumbnails.length);
-            }, 3000); // 每3秒轮播一次
-
-            return () => clearInterval(interval);
-        }
-    }, [thumbnails.length, isPaused]);
-
-    useEffect(() => {
-        setMainImage(thumbnails[currentThumbnailIndex].src);
-    }, [currentThumbnailIndex, thumbnails]);
 
     const handleThumbnailClick = (index: number) => {
         setCurrentThumbnailIndex(index);
@@ -151,6 +135,41 @@ function GameDetail() {
         { title: '推荐游戏3', image: '/fengmian1.jpg' },
         { title: '推荐游戏4', image: '/fengmian2.jpg' }
     ];
+    
+    useEffect(() => {
+        // 确保组件在客户端渲染
+        setIsHydrated(true);
+
+        // 检查 localStorage 中是否有用户数据
+        const storedUserString = localStorage.getItem('user-storage');
+        if (storedUserString) {
+            const storedUser = JSON.parse(storedUserString);
+            if (storedUser && storedUser.state && storedUser.state.user) {
+                setUser(storedUser.state.user);
+            }
+        }
+    }, [setUser]);
+
+    useEffect(() => {
+        if (!isPaused) {
+            const interval = setInterval(() => {
+                setCurrentThumbnailIndex((prevIndex) => (prevIndex + 1) % thumbnails.length);
+            }, 3000); // 每3秒轮播一次
+
+            return () => clearInterval(interval);
+        }
+    }, [thumbnails.length, isPaused]);
+
+    useEffect(() => {
+        setMainImage(thumbnails[currentThumbnailIndex].src);
+    }, [currentThumbnailIndex, thumbnails]);
+
+    if (!isHydrated) {
+        // 避免客户端和服务端渲染结果不一致的问题
+        return null;
+    }
+
+    
 
     return (
         <BackgroundDiv>
@@ -159,7 +178,7 @@ function GameDetail() {
                 <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between">
                     <div className="text-white flex items-center space-x-4">
                         <a href="#">
-                            <img src="https://store.akamai.steamstatic.com/public/shared/images/header/logo_steam.svg?t=962016" width="176" height="44" alt="Steam 主页链接" />
+                        <img src="/game new.svg" width="80" height="35" alt="Steam 主页链接"/>
                         </a>
                         <ul className="flex items-center space-x-6">
                             <li>

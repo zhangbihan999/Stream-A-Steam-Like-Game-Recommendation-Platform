@@ -23,10 +23,10 @@ export default function Home() {
         }
       }, [setUser]);
     
-      if (!isHydrated) {
+    if (!isHydrated) {
         // 避免客户端和服务端渲染结果不一致的问题
         return null;
-      }
+    }
 
     // 将 SVG 内容嵌入 styled-component
     const BackgroundDiv = styled.div`
@@ -112,7 +112,7 @@ export default function Home() {
             <Carousel></Carousel>
           </div>
 
-          <div className='pb-20'>
+          <div className='pt-4 pb-20'>
             <Scroll></Scroll>           
           </div>
           
