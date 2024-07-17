@@ -29,7 +29,7 @@ const FormContainer = styled.div`
   border: 2px solid #000; 
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.55);
   height: 100%;
-  width: 100%; /* Adjust to the desired width */
+  width: 90%; /* Adjust to the desired width */
   max-height: 200px;
   max-width: 5000px; /* Adjust to the desired max width */
   animation: slideUp 0.6s ease-out forwards;
@@ -64,15 +64,6 @@ const imaStyle: CSSProperties = {
 };
 
 //按钮设置
-const but_Style = {
-  backgroundImage: 'butt.png', 
-  backgroundSize: 'cover', // 确保图片覆盖整个按钮
-  backgroundPosition: 'center', // 将图片置于按钮中心
-  border: 'none', 
-  width: '100px',
-  height: '50px',
-  cursor: 'ns-resize' 
-};
 const ImageButton = ({ imageUrl, onClick }) => {
   return (
     <button onClick={onClick} style={{ border: 'none', background: 'none' }}>
@@ -81,6 +72,18 @@ const ImageButton = ({ imageUrl, onClick }) => {
   );
 };
 
+//灰色实线(竖线)
+const LineComponent = () => {
+  const lineStyle = {
+    width: '2px', // 线条宽度，现在是竖线的高度
+    height: '100px', // 线条高度，现在是竖线的长度
+    backgroundColor: '#A9A9A9', // 深灰色
+    margin: '0 10px', // 调整为左右外边距
+    display: 'inline-block', // 确保div以行内块元素显示
+  };
+
+  return <div style={lineStyle} />;
+};
 
 interface CustomElementProps {
   imageUrl: string;
@@ -138,48 +141,131 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
         </div>
 
         <div className="container mx-auto my-10 flex-1 rounded items-center justify-between w-full">
-          <FormContainer>
+        <FormContainer>
             <div className="flex items-center">
-              <div className="mr-4">
-                <img src="fengmian1.jpg" alt="Image" style={imaStyle}  />
+              <div className="mr-7">
+                <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
               </div>
+              <div className='mr-6'><LineComponent /></div>
               <div className="flex-1">
-                <input type="text" placeholder="Enter text here" />
+                <h2>Counter-Strike 2</h2>
+                <div className="tags">
+                  <span>第一人称射击</span>
+                  <span>射击</span>
+                  <span>多人</span>
+                  <span>竞技</span>
+                  <span>动作</span>
+                </div>
+                <div className="info">
+                  <div className="release-date">
+                    <span>发行日期：</span>
+                    <span>2012 年 8 月 22 日</span>
+                  </div>
+                  <div className="rating">
+                    <span>总体评价：</span>
+                    <span>特别好评</span>
+                  </div>
               </div>
-              <div className="ml-4">
-                <button style={but_Style}>Button</button>
-              </div>
-              
-            </div>
-          </FormContainer>
-
-          <FormContainer>
-            <div className="flex items-center">
-              <div className="mr-4">
-                <img src="fengmian2.jpg" alt="Image" style={imaStyle} />
-              </div>
-              <div className="flex-1">
-                <input type="text" placeholder="Enter text here" />
-              </div>
-              <div className="ml-4">
-                <button style={but_Style}>Button</button>
-              </div>
-              
-            </div>
-          </FormContainer>
-
-          <FormContainer>
-            <div className="flex items-center">
-              <div className="mr-4">
-                <img src="fengmian1.jpg" alt="Image" style={imaStyle} />
-              </div>
-              <div className="flex-1">
-                <input type="text" placeholder="Enter text here" />
               </div>
               <div className="ml-4">
                 <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
               </div>
-              
+            </div>
+          </FormContainer>
+
+          <FormContainer>
+            <div className="flex items-center">
+              <div className="mr-7">
+                <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
+              </div>
+              <div className='mr-6'><LineComponent /></div>
+              <div className="flex-1">
+                <h2>Counter-Strike 2</h2>
+                <div className="tags">
+                  <span>第一人称射击</span>
+                  <span>射击</span>
+                  <span>多人</span>
+                  <span>竞技</span>
+                  <span>动作</span>
+                </div>
+                <div className="info">
+                  <div className="release-date">
+                    <span>发行日期：</span>
+                    <span>2012 年 8 月 22 日</span>
+                  </div>
+                  <div className="rating">
+                    <span>总体评价：</span>
+                    <span>特别好评</span>
+                  </div>
+              </div>
+              </div>
+              <div className="ml-4">
+                <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
+              </div>
+            </div>
+          </FormContainer>
+
+          <FormContainer>
+            <div className="flex items-center">
+              <div className="mr-7">
+                <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
+              </div>
+              <div className='mr-6'><LineComponent /></div>
+              <div className="flex-1">
+                <h2>Counter-Strike 2</h2>
+                <div className="tags">
+                  <span>第一人称射击</span>
+                  <span>射击</span>
+                  <span>多人</span>
+                  <span>竞技</span>
+                  <span>动作</span>
+                </div>
+                <div className="info">
+                  <div className="release-date">
+                    <span>发行日期：</span>
+                    <span>2012 年 8 月 22 日</span>
+                  </div>
+                  <div className="rating">
+                    <span>总体评价：</span>
+                    <span>特别好评</span>
+                  </div>
+              </div>
+              </div>
+              <div className="ml-4">
+                <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
+              </div>
+            </div>
+          </FormContainer>
+
+          <FormContainer>
+            <div className="flex items-center">
+              <div className="mr-7">
+                <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
+              </div>
+              <div className='mr-6'><LineComponent /></div>
+              <div className="flex-1">
+                <h2>Counter-Strike 2</h2>
+                <div className="tags">
+                  <span>第一人称射击</span>
+                  <span>射击</span>
+                  <span>多人</span>
+                  <span>竞技</span>
+                  <span>动作</span>
+                </div>
+                <div className="info">
+                  <div className="release-date">
+                    <span>发行日期：</span>
+                    <span>2012 年 8 月 22 日</span>
+                  </div>
+                  <div className="rating">
+                    <span>总体评价：</span>
+                    <span>特别好评</span>
+                  </div>
+              </div>
+              </div>
+              <div className="ml-4">
+                <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
+              </div>
             </div>
           </FormContainer>
         </div>
