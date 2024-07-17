@@ -18,6 +18,9 @@ export default function Home() {
     justify-content: center;
     `;
 
+    /* 轮播图 */
+    
+
     return (
       <BackgroundDiv>
         <div className="text-x text-gray-900">

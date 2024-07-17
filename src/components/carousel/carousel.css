@@ -1,0 +1,35 @@
+.carousel-item {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  
+  .carousel-item.active {
+    opacity: 1;
+    transform: translateX(0);
+    z-index: 10;
+  }
+  
+  .carousel-item.previous {
+    transform: translateX(-100%);
+  }
+  
+  .carousel-item.next {
+    transform: translateX(100%);
+  }
+  
+  .carousel-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  
+  .carousel-inner {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+  
