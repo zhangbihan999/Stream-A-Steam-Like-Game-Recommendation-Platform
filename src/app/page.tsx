@@ -1,7 +1,7 @@
 'use client'
 import { supabase } from "@/lib/api";
 import Link from 'next/link';
-import useUserStore from '@/lib/useStore';
+import useUserStore from '@/lib/useUserStore';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {

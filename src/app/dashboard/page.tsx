@@ -1,30 +1,15 @@
 "use client"
-import Link from 'next/link';
-import useUserStore from "@/lib/useStore";
+import useUserStore from "@/lib/useUserStore";
+import useGameStore from "@/lib/useGameStore";
 import styled from '@emotion/styled';
 import Carousel from '@/components/carousel/Carousel';
 import Scroll from '@/components/scroll/Scroll'
 import { useEffect, useState } from 'react';
 import { supabase } from "@/lib/api";
-
+import Link from "next/link";
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-    const { user, setUser, logout } = useUserStore();  /* 用户状态 */
-    const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
-    const [games, setGames] = useState([]); // 存储游戏数据
-
-    // 从 Supabase 获取游戏数据
-    const fetchGames = async () => {
-        const { data, error } = await supabase
-            .from('game')
-            .select('*');
-        if (error) {
-            console.error('Error fetching games:', error);
-        } else {
-            setGames(data);
-        }
-    };
-
     // 将 SVG 内容嵌入 styled-component
     const BackgroundDiv = styled.div`
     background-image: url('/fengmian2.jpg');
@@ -36,6 +21,34 @@ export default function Home() {
     flex-direction: column;
     justify-content: center;
     `;
+
+    const { user, setUser, logout } = useUserStore();  /* 用户状态 */
+    const { game, setGame, exit } = useGameStore();  /* 游戏状态 */
+    const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
+    const [games, setGames] = useState([]); // 存储游戏数据
+    const router = useRouter();
+
+    // 从 Supabase 获取游戏数据
+    const fetchGames = async () => {
+        const { data, error } = await supabase
+            .from('game')
+            .select('*')
+            .in('g_id', [2,3,4,5,6,7,8,9,10,11])
+        if (error) {
+            console.error('Error fetching games:', error);
+        } else {
+            setGames(data);
+        }
+    };
+
+    const handleClick = (game) => {
+        return () => {
+            setGame(game); // 将点击的游戏设置为全局游戏状态
+            router.push('/dashboard/GameDetail');  // 使用 Next.js 的 useRouter
+            console.log('被点击了:', game); // 输出更新后的游戏对象
+        };
+    };
+    
     useEffect(() => {
         // 确保组件在客户端渲染
         setIsHydrated(true);
@@ -138,7 +151,10 @@ export default function Home() {
             {games.map((game, index) => (
                 game.face_img ? (
                     <div key={index} className='w-full'>
-                        <img src={game?.face_img} alt={`Game ${index}`} className='w-full h-full object-cover hover:cursor-pointer hover:opacity-75'/>
+                        <img src={game?.face_img} alt={`Game ${index}`} 
+                            className='w-full h-48 object-cover hover:cursor-pointer hover:opacity-75'   
+                            onClick={handleClick(game)}
+                        />
                     </div>
                 ) : null
             ))}

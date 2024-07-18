@@ -1,7 +1,7 @@
 'use client'
 import { supabase } from "@/lib/api";
 import Link from 'next/link';
-import useUserStore from '@/lib/useStore';
+import useUserStore from '@/lib/useUserStore';
 import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import React from 'react';

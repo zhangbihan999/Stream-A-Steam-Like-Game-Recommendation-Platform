@@ -1,9 +1,11 @@
 "use client"
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import useUserStore from "@/lib/useStore";
+import useUserStore from "@/lib/useUserStore";
+import useGameStore from "@/lib/useGameStore";
 import styled from '@emotion/styled';
 import { supabase } from "@/lib/api";
+import { useRouter } from 'next/navigation';
 
 const BackgroundDiv = styled.div`
     background-image: url('/fengmian2.jpg');
@@ -52,6 +54,7 @@ Stars.displayName = 'Stars';
 
 function GameDetail() {
     const { user, setUser, logout } = useUserStore();  /* 用户状态 */
+    const { game, setGame, exit } = useGameStore();  /* 游戏状态 */
     const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
     const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0)
     const [currentMedia, setCurrentMedia] = useState({src: null, type: null});
@@ -66,6 +69,7 @@ function GameDetail() {
     const [comments, setComments] = useState([]); // 评论列表状态
     const [isFavorite, setIsFavorite] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const router = useRouter();
     const renderFavoriteButton = () => {
         return (
             <svg
@@ -87,21 +91,6 @@ function GameDetail() {
                 />
             </svg>
         );
-    };
-
-    const [game, setGame] = useState(null);
-    // 从 Supabase 获取游戏数据
-    const fetchGame = async () => {
-        const { data, error } = await supabase
-            .from('game')
-            .select('*')
-            .eq('g_id', 1);
-        if (error) {
-            console.error('Error fetching games:', error);
-        } else {
-            console.log(data[0])
-            setGame(data[0])
-        }
     };
 
     const handleThumbnailClick = (index: number) => {
@@ -192,8 +181,13 @@ function GameDetail() {
             }
         }
         // 获取游戏数据
-        fetchGame()
+        /* fetchGame() */
     }, [setUser]);
+
+    useEffect(() => {
+        // 页面加载时自动滚动到顶部
+        window.scrollTo(0, 0);
+    }, [router]);
 
     const thumbnails = [
         { src: game && game.img1, alt: '小图1', type: 'image' },
@@ -223,21 +217,7 @@ function GameDetail() {
             setVideoPlay(false)
             setVideoEnded(false)
         }
-    }, [currentThumbnailIndex, thumbnails]);
-
-    /* useEffect(() => {
-        if (videoPlay) {
-            setIsPaused(true)
-        } else if (videoEnded) {
-            setIsPaused(false)
-        } else if (pauseDueToHover) {
-            setIsPaused(true); // 当鼠标悬停时暂停轮播
-        } else if (currentMedia.type === 'video'){
-            setIsPaused(true); // 当视频不是开始也不是结束，但展示视频时停止轮播
-        } else {
-            setIsPaused(false)
-        }
-    }, [currentMedia, pauseDueToHover, videoPlay, videoEnded]); */ // 依赖于媒体类型和鼠标悬停状态  
+    }, [currentThumbnailIndex, thumbnails]); 
     
     useEffect(() => {
         if (videoPlay){
@@ -246,6 +226,8 @@ function GameDetail() {
             setIsPaused(true)
         } else if (videoEnded){
             setIsPaused(false)
+        } else if (isModalOpen){
+            setIsPaused(true)
         } else {
             setIsPaused(false)
         }
@@ -273,7 +255,7 @@ function GameDetail() {
                         </a>
                         <ul className="flex items-center space-x-6">
                             <li>
-                                <a href="#" className="hover:text-gray-400 text-white">商店</a>
+                                <a href="/dashboard" className="hover:text-gray-400 text-white">商店</a>
                             </li>
                             <li>
                                 <a href="#" className="hover:text-gray-400 text-white">{user?.name}</a>
@@ -321,30 +303,32 @@ function GameDetail() {
                 </div>
 
                 <div className="ml-16 mt-8 mb-4">
-                    <h2 className="text-2xl font-bold text-white">{game?.g_name}</h2>
+                    <h2 className="text-4xl font-bold text-white">{game?.g_name}</h2>
                 </div>
 
                 <div className="flex container mx-auto space-x-6 items-stretch">
                     <div className="w-2/3 flex flex-col">
                         {/* 左侧大框和小框 */}
-                        <div className="flex-1 border border-gray-600 relative " style={{ height: '60%' }}
-                        onMouseEnter={handleMouseEnterMainImage}
-                        onMouseLeave={handleMouseLeaveMainImage}
+                        <div className="relative border border-gray-600 w-full" style={{height: '500px'}}
+                            onMouseEnter={handleMouseEnterMainImage}
+                            onMouseLeave={handleMouseLeaveMainImage}
                         >
                             {currentMedia.type === 'video' ? (
                                 <video
                                     src={currentMedia.src}
                                     controls autoPlay
-                                    className="w-full h-full object-cover cursor-pointer"
+                                    className="w-full h-96 object-cover cursor-pointer"
                                     onPlay={handleVideoPlay}
                                     onEnded={handleVideoEnded}
+                                    style={{height: '500px'}}
                                 />
                             ) : (
                                 <img
                                     src={currentMedia.src}
                                     alt="主展示图"
-                                    className="w-full h-full object-cover cursor-pointer"
+                                    className="w-full object-cover cursor-pointer" style={{height: '500px'}}
                                     onClick={handleImageClick}
+                                    
                                 />
                             )}
                             <div className="absolute bottom left-0 right-0  bg-opacity-50 flex justify-center py-2 space-x-2">
@@ -395,7 +379,7 @@ function GameDetail() {
 
                     {/* 右侧信息部分 */}
                     <div className="w-1/3 flex flex-col justify-between bg-gray-800 p-4 rounded-lg text-white" style={{ height: '60%' }}>
-                        <img src={game?.face_img} alt="宣传图" className="w-full h-1/2 object-cover mb-4" />
+                        <img src={game?.face_img} alt="宣传图" className="w-full object-cover mb-4" style={{height: '200px'}}/>
                         <div className="text-sm flex-1">
                             <p className="mb-2">{game?.Description}</p>
                             <div className="mb-2">
@@ -446,7 +430,7 @@ function GameDetail() {
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={handleCloseModal}>
                     <div className="relative" style={{ width: '80%', height: '80%' }}>
-                        <img src={mainImage} alt="放大展示图" className="max-w-full max-h-full" onClick={(e) => e.stopPropagation()} />
+                        <img src={mainImage} alt="放大展示图" className="w-full h-full" onClick={(e) => e.stopPropagation()} />
                     </div>
                 </div>
             )}
