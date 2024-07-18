@@ -45,6 +45,7 @@ const BackgroundDiv = styled.div`
 const CenteredContainer = styled.div`
   display: flex; /* 使用Flexbox布局 */
   justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
   height: 22vh; /* 调整白色半透明容器之间的距离(宽度比例) */
   margin-bottom: -2rem;
 `;
@@ -56,19 +57,22 @@ const FormContainer = styled.a`
   border-radius: 25px;
   border: 2px solid #000;
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.55);
-  display: block; /* Make the <a> tag behave like a block-level element */
+  display: flex; /* 修改为flex布局 */
+  flex-direction: column; /* 子元素垂直排列 */
+  justify-content: center; /* 子元素在容器中垂直居中 */
+  align-items: flex-start; /* 子元素在容器中水平居左 */
   box-sizing: border-box; /* Include padding and border in the element's total width and height */
   height: 76%; /* This might need to be adjusted based on the parent container's height */
-  width: 90%; /* Adjust to the desired width */
+  width: 92%; /* Adjust to the desired width */
   max-height: 200px; /* Adjust to the desired max height */
-  max-width: 5000px; /* Adjust to the desired max width */
+  max-width: 6000px; /* Adjust to the desired max width */
   animation: slideUp 0.6s ease-out forwards;
   margin-bottom: 2rem;  /*useless?*/
   transition: transform 0.3s ease; /*smoothness of clicking*/
 
   &:last-child {
     margin-bottom: 0;
-  }     /*might useless*/
+  }     
 
   &:hover {
     transform: scale(1.02);
@@ -81,7 +85,9 @@ const FlexContainer = styled.div`
   flex-direction: column; /* 子元素垂直排列 */
   justify-content: center; /* 子元素在容器中垂直居中 */
   gap: 1rem; /* 子元素之间的间距 */
-  transform: translateY(-9px); /*半透明容器内部元素相对容器的垂直偏移*/
+  transform: translateY(-2px); /*半透明容器内部元素相对容器的垂直偏移*/
+  width: 100%; // 宽度填满父容器
+  height: 100%; // 高度填满父容器
 `;
 
 //图片缩放
@@ -94,8 +100,16 @@ const imaStyle: CSSProperties = {
 //按钮设置
 const ImageButton = ({ imageUrl, onClick }) => {
   return (
-    <button onClick={onClick} style={{ border: 'none', background: 'none' }}>
-      <img src="butt.png" alt="Image Button" style={{ cursor: 'ns-resize',  width: '35px', height: '50px' }} />
+    <button onClick={onClick} style={{
+      border: 'none',
+      background: 'none',
+      position: 'relative', // 设置相对定位
+      top: '7px', // 假设红框的顶部距离是50px
+      right: '0',
+      // transform: 'translateX(724px)',
+      cursor: 'ns-resize' // 确保鼠标悬停时显示为指针
+    }}>
+      <img src="butt.png" alt="Image Button" style={{ width: '25px', height: '40px' }} />
     </button>
   );
 };
@@ -170,12 +184,12 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
         </div>
 
         <div className="container mx-auto my-10 flex-1 rounded items-center justify-between w-full">
-          <CenteredContainer>
+        <CenteredContainer>
             <FormContainer href="/login">
               <FlexContainer>
                 <div className="flex items-center">
                   <div className="mr-2">
-                    <Label text="1" style={{ margin: '0 10px 0 0' }} />
+                    <Label text="2" style={{ margin: '0 10px 0 0' }} />
                   </div>
                   <div className="mr-7">
                     <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
@@ -199,7 +213,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                         <span>总体评价：</span>
                         <span>特别好评</span>
                       </div>
-                    </div>
+                  </div>
                   </div>
                   <div className="ml-4">
                     <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
