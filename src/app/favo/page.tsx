@@ -8,6 +8,8 @@ import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import Image from 'next/image';
 import Carousel from '@/components/carousel/Carousel';
+import { link } from 'fs';
+
 
 //背景
 const BackgroundDiv = styled.div`
@@ -21,28 +23,49 @@ const BackgroundDiv = styled.div`
   align-items: center; /* Center the form container */
   padding: 2rem;
 `;
-//白色半透明框
-const FormContainer = styled.div`
-  background: rgba(255, 255, 255, 0.90); /* Semi-transparent white background */
+
+//半透明框父容器
+const CenteredContainer = styled.div`
+  display: flex; /* 使用Flexbox布局 */
+  justify-content: center; /* 水平居中 */
+  height: 24vh; /* 调整白色半透明容器之间的距离(宽度比例) */
+  margin-bottom: -1rem;
+`;
+
+
+//白色半透明框（链接版）
+const FormContainer = styled.a`
+  background: rgba(255, 255, 255, 0.90);
   padding: 2rem;
   border-radius: 25px;
-  border: 2px solid #000; 
+  border: 2px solid #000;
   box-shadow: 0 0 25px rgba(255, 255, 255, 0.55);
-  height: 100%;
+  display: block; /* Make the <a> tag behave like a block-level element */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  height: 76%; /* This might need to be adjusted based on the parent container's height */
   width: 90%; /* Adjust to the desired width */
-  max-height: 200px;
+  max-height: 200px; /* Adjust to the desired max height */
   max-width: 5000px; /* Adjust to the desired max width */
   animation: slideUp 0.6s ease-out forwards;
-  margin-bottom: 2rem; /* Add vertical space between containers */
-  transition: transform 0.3s ease; /* Smooth transition for transform */
-  
+  margin-bottom: 2rem;  /*useless?*/
+  transition: transform 0.3s ease; /*smoothness of clicking*/
+
   &:last-child {
-    margin-bottom: 0; /* Remove margin from the last container */
-  }
+    margin-bottom: 0;
+  }     /*might useless*/
 
   &:hover {
-    transform: scale(1.02); /* Scale up to 105% of the original size */
+    transform: scale(1.02);
   }
+`;
+
+// FormContainer内的子元素样式
+const FlexContainer = styled.div`
+  display: flex; /* 使用Flexbox布局 */
+  flex-direction: column; /* 子元素垂直排列 */
+  justify-content: center; /* 子元素在容器中垂直居中 */
+  gap: 1rem; /* 子元素之间的间距 */
+  transform: translateY(-5px); /*半透明容器内部元素相对容器的垂直偏移*/
 `;
 
 //图片缩放
@@ -64,8 +87,8 @@ const ImageButton = ({ imageUrl, onClick }) => {
 //灰色实线(竖线)
 const LineComponent = () => {
   const lineStyle = {
-    width: '2px', // 线条宽度，现在是竖线的高度
-    height: '100px', // 线条高度，现在是竖线的长度
+    width: '3px', // 线条宽度，现在是竖线的高度
+    height: '80px', // 线条高度，现在是竖线的长度
     backgroundColor: '#A9A9A9', // 深灰色
     margin: '0 10px', // 调整为左右外边距
     display: 'inline-block', // 确保div以行内块元素显示
@@ -74,6 +97,7 @@ const LineComponent = () => {
   return <div style={lineStyle} />;
 };
 
+//传图接口
 interface CustomElementProps {
   imageUrl: string;
   buttonStyleUrl: string;
@@ -83,16 +107,6 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
   // const [imageStyle, setImageStyle] = useState<React.CSSProperties>({});
   // const [buttonStyle, setButtonStyle] = useState<React.CSSProperties>({});
   const { user, logout} = useUserStore()
-
-  // useEffect(() => {
-  //   fetch(imageUrl)
-  //     .then(response => response.json())
-  //     .then(data => setImageStyle(data));
-    
-  //   fetch(buttonStyleUrl)
-  //     .then(response => response.json())
-  //     .then(data => setButtonStyle(data));
-  // }, [imageUrl, buttonStyleUrl]);
 
   return (
     <BackgroundDiv>
@@ -130,137 +144,150 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
         </div>
 
         <div className="container mx-auto my-10 flex-1 rounded items-center justify-between w-full">
-        <FormContainer>
-            <div className="flex items-center">
-              <div className="mr-7">
-                <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
-              </div>
-              <div className='mr-6'><LineComponent /></div>
-              <div className="flex-1">
-                <h2>Counter-Strike 2</h2>
-                <div className="tags">
-                  <span>第一人称射击</span>
-                  <span>射击</span>
-                  <span>多人</span>
-                  <span>竞技</span>
-                  <span>动作</span>
+          <CenteredContainer>
+            <FormContainer href="/login">
+              <FlexContainer>
+                <div className="flex items-center">
+                  <div className="mr-7">
+                    <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
+                  </div>
+                  <div className='mr-6'><LineComponent /></div>
+                  <div className="flex-1">
+                    <h2>Counter-Strike 2</h2>
+                    <div className="tags">
+                      <span>第一人称射击</span>
+                      <span>射击</span>
+                      <span>多人</span>
+                      <span>竞技</span>
+                      <span>动作</span>
+                    </div>
+                    <div className="info">
+                      <div className="release-date">
+                        <span>发行日期：</span>
+                        <span>2012 年 8 月 22 日</span>
+                      </div>
+                      <div className="rating">
+                        <span>总体评价：</span>
+                        <span>特别好评</span>
+                      </div>
+                  </div>
+                  </div>
+                  <div className="ml-4">
+                    <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
+                  </div>
                 </div>
-                <div className="info">
-                  <div className="release-date">
-                    <span>发行日期：</span>
-                    <span>2012 年 8 月 22 日</span>
-                  </div>
-                  <div className="rating">
-                    <span>总体评价：</span>
-                    <span>特别好评</span>
-                  </div>
-              </div>
-              </div>
-              <div className="ml-4">
-                <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
-              </div>
-            </div>
-          </FormContainer>
+              </FlexContainer>
+            </FormContainer>
+          </CenteredContainer>                  
 
-          <FormContainer>
-            <div className="flex items-center">
-              <div className="mr-7">
-                <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
-              </div>
-              <div className='mr-6'><LineComponent /></div>
-              <div className="flex-1">
-                <h2>Counter-Strike 2</h2>
-                <div className="tags">
-                  <span>第一人称射击</span>
-                  <span>射击</span>
-                  <span>多人</span>
-                  <span>竞技</span>
-                  <span>动作</span>
+          <CenteredContainer>
+            <FormContainer href="/login">
+              <FlexContainer>
+                <div className="flex items-center">
+                  <div className="mr-7">
+                    <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
+                  </div>
+                  <div className='mr-6'><LineComponent /></div>
+                  <div className="flex-1">
+                    <h2>Counter-Strike 2</h2>
+                    <div className="tags">
+                      <span>第一人称射击</span>
+                      <span>射击</span>
+                      <span>多人</span>
+                      <span>竞技</span>
+                      <span>动作</span>
+                    </div>
+                    <div className="info">
+                      <div className="release-date">
+                        <span>发行日期：</span>
+                        <span>2012 年 8 月 22 日</span>
+                      </div>
+                      <div className="rating">
+                        <span>总体评价：</span>
+                        <span>特别好评</span>
+                      </div>
+                  </div>
+                  </div>
+                  <div className="ml-4">
+                    <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
+                  </div>
                 </div>
-                <div className="info">
-                  <div className="release-date">
-                    <span>发行日期：</span>
-                    <span>2012 年 8 月 22 日</span>
-                  </div>
-                  <div className="rating">
-                    <span>总体评价：</span>
-                    <span>特别好评</span>
-                  </div>
-              </div>
-              </div>
-              <div className="ml-4">
-                <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
-              </div>
-            </div>
-          </FormContainer>
+              </FlexContainer>
+            </FormContainer>
+          </CenteredContainer> 
 
-          <FormContainer>
-            <div className="flex items-center">
-              <div className="mr-7">
-                <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
-              </div>
-              <div className='mr-6'><LineComponent /></div>
-              <div className="flex-1">
-                <h2>Counter-Strike 2</h2>
-                <div className="tags">
-                  <span>第一人称射击</span>
-                  <span>射击</span>
-                  <span>多人</span>
-                  <span>竞技</span>
-                  <span>动作</span>
+          <CenteredContainer>
+            <FormContainer href="/login">
+              <FlexContainer>
+                <div className="flex items-center">
+                  <div className="mr-7">
+                    <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
+                  </div>
+                  <div className='mr-6'><LineComponent /></div>
+                  <div className="flex-1">
+                    <h2>Counter-Strike 2</h2>
+                    <div className="tags">
+                      <span>第一人称射击</span>
+                      <span>射击</span>
+                      <span>多人</span>
+                      <span>竞技</span>
+                      <span>动作</span>
+                    </div>
+                    <div className="info">
+                      <div className="release-date">
+                        <span>发行日期：</span>
+                        <span>2012 年 8 月 22 日</span>
+                      </div>
+                      <div className="rating">
+                        <span>总体评价：</span>
+                        <span>特别好评</span>
+                      </div>
+                  </div>
+                  </div>
+                  <div className="ml-4">
+                    <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
+                  </div>
                 </div>
-                <div className="info">
-                  <div className="release-date">
-                    <span>发行日期：</span>
-                    <span>2012 年 8 月 22 日</span>
-                  </div>
-                  <div className="rating">
-                    <span>总体评价：</span>
-                    <span>特别好评</span>
-                  </div>
-              </div>
-              </div>
-              <div className="ml-4">
-                <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
-              </div>
-            </div>
-          </FormContainer>
+              </FlexContainer>
+            </FormContainer>
+          </CenteredContainer> 
 
-          <FormContainer>
-            <div className="flex items-center">
-              <div className="mr-7">
-                <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
-              </div>
-              <div className='mr-6'><LineComponent /></div>
-              <div className="flex-1">
-                <h2>Counter-Strike 2</h2>
-                <div className="tags">
-                  <span>第一人称射击</span>
-                  <span>射击</span>
-                  <span>多人</span>
-                  <span>竞技</span>
-                  <span>动作</span>
+          <CenteredContainer>
+            <FormContainer href="/login">
+              <FlexContainer>
+                <div className="flex items-center">
+                  <div className="mr-7">
+                    <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
+                  </div>
+                  <div className='mr-6'><LineComponent /></div>
+                  <div className="flex-1">
+                    <h2>好好好</h2>
+                    <div className="tags">
+                      <span>第一人称射击</span>
+                      <span>射击</span>
+                      <span>多人</span>
+                      <span>竞技</span>
+                      <span>动作</span>
+                    </div>
+                    <div className="info">
+                      <div className="release-date">
+                        <span>发行日期：</span>
+                        <span>2012 年 8 月 22 日</span>
+                      </div>
+                      <div className="rating">
+                        <span>总体评价：</span>
+                        <span>特别好评</span>
+                      </div>
+                  </div>
+                  </div>
+                  <div className="ml-4">
+                    <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
+                  </div>
                 </div>
-                <div className="info">
-                  <div className="release-date">
-                    <span>发行日期：</span>
-                    <span>2012 年 8 月 22 日</span>
-                  </div>
-                  <div className="rating">
-                    <span>总体评价：</span>
-                    <span>特别好评</span>
-                  </div>
-              </div>
-              </div>
-              <div className="ml-4">
-                <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
-              </div>
-            </div>
-          </FormContainer>
+              </FlexContainer>
+            </FormContainer>
+          </CenteredContainer> 
         </div>
-
-
-
       </BackgroundDiv>
   );
 };
