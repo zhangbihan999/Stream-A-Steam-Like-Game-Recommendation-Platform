@@ -47,7 +47,7 @@ export default function Scroll() {
         onMouseLeave={handleMouseLeave}
       >
         {images.map((image, index) => (
-          <div key={index} className={`item hover:cursor-pointer ${animationDirection}`}
+          <div key={index} className={`item  ${animationDirection}`}
             style={{
               animationDelay: `calc(${7 * (images.length - (index + 1))}s * -1)`,
               animationDuration: `${7 * images.length}s` 
@@ -55,7 +55,7 @@ export default function Scroll() {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
-            <img src={image} alt={`slide ${index}`} className="w-full h-full object-cover"/>
+            <img src={image} alt={`slide ${index}`} className="w-full h-full object-cover hover:cursor-pointer hover:opacity-75"/>
           </div>
         ))}
       </div>

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import useUserStore from "@/lib/useStore";
 import styled from '@emotion/styled';
+import { supabase } from "@/lib/api";
 
 const BackgroundDiv = styled.div`
     background-image: url('/fengmian2.jpg');
@@ -52,14 +53,8 @@ Stars.displayName = 'Stars';
 function GameDetail() {
     const { user, setUser, logout } = useUserStore();  /* 用户状态 */
     const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
-    const thumbnails = [
-        { src: '/fengmian1.jpg', alt: '小图1' },
-        { src: '/fengmian2.jpg', alt: '小图2' },
-        { src: '/fengmian1.jpg', alt: '小图3' },
-        { src: '/fengmian2.jpg', alt: '小图4' }
-    ]; // 小图数组
-    const [mainImage, setMainImage] = useState(thumbnails[0].src); // 初始主展示图设为第一个小窗图
-    const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0); // 当前轮播图索引
+    const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0)
+    const [currentMedia, setCurrentMedia] = useState({src: null, type: null});
     const [currentRating, setCurrentRating] = useState(0); // 当前评分
     const [hoverRating, setHoverRating] = useState(0); // 鼠标悬停评分
     const [isModalOpen, setIsModalOpen] = useState(false); // 控制放大查看图像的状态
@@ -89,6 +84,21 @@ function GameDetail() {
                 />
             </svg>
         );
+    };
+
+    const [game, setGame] = useState(null);
+    // 从 Supabase 获取游戏数据
+    const fetchGame = async () => {
+        const { data, error } = await supabase
+            .from('game')
+            .select('*')
+            .eq('g_id', 1);
+        if (error) {
+            console.error('Error fetching games:', error);
+        } else {
+            console.log(data[0])
+            setGame(data[0])
+        }
     };
 
     const handleThumbnailClick = (index: number) => {
@@ -135,7 +145,7 @@ function GameDetail() {
         { title: '推荐游戏3', image: '/fengmian1.jpg' },
         { title: '推荐游戏4', image: '/fengmian2.jpg' }
     ];
-    
+
     useEffect(() => {
         // 确保组件在客户端渲染
         setIsHydrated(true);
@@ -148,7 +158,18 @@ function GameDetail() {
                 setUser(storedUser.state.user);
             }
         }
+        // 获取游戏数据
+        fetchGame()
     }, [setUser]);
+
+    const thumbnails = [
+        { src: game && game.img1, alt: '小图1', type: 'image' },
+        { src: game && game.img2, alt: '小图2', type: 'image' },
+        { src: game && game.img3, alt: '小图3', type: 'image' },
+        { src: game && game.img4, alt: '小图4', type: 'image' },
+        { src: game && game.video, alt: '视频', type: 'video' }
+    ]; // 小图数组
+    const [mainImage, setMainImage] = useState(thumbnails[0].src); // 初始主展示图设为第1个小窗图
 
     useEffect(() => {
         if (!isPaused) {
@@ -159,6 +180,21 @@ function GameDetail() {
             return () => clearInterval(interval);
         }
     }, [thumbnails.length, isPaused]);
+
+    useEffect(() => {
+        setCurrentMedia({
+            src: thumbnails[currentThumbnailIndex].src,
+            type: thumbnails[currentThumbnailIndex].type
+        });
+    }, [currentThumbnailIndex, thumbnails]);
+
+    useEffect(() => {
+        if (currentMedia.type === 'video') {
+            setIsPaused(true);  // 当前为视频时停止轮播
+        } else {
+            setIsPaused(false); // 不是视频时恢复轮播
+        }
+    }, [currentMedia]);
 
     useEffect(() => {
         setMainImage(thumbnails[currentThumbnailIndex].src);
@@ -230,23 +266,47 @@ function GameDetail() {
                 </div>
 
                 <div className="ml-16 mt-8 mb-4">
-                    <h2 className="text-2xl font-bold text-white">游戏名称</h2>
+                    <h2 className="text-2xl font-bold text-white">{game?.g_name}</h2>
                 </div>
 
                 <div className="flex container mx-auto space-x-6 items-stretch">
-                    {/* 左侧大框和小框 */}
                     <div className="w-2/3 flex flex-col">
-                        <div className="flex-1 border border-gray-600 relative" style={{ height: '60%' }}>
-                            <img src={mainImage} alt="主展示图" className="w-full h-full object-cover cursor-pointer" onClick={handleImageClick} />
-                            <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 flex justify-center py-2 space-x-2">
+                        {/* 左侧大框和小框 */}
+                        <div className="flex-1 border border-gray-600 relative " style={{ height: '60%' }}>
+                            {currentMedia.type === 'video' ? (
+                                <video
+                                    src={currentMedia.src}
+                                    controls autoPlay loop muted
+                                    className="w-full h-full object-cover cursor-pointer"
+                                />
+                            ) : (
+                                <img
+                                    src={currentMedia.src}
+                                    alt="主展示图"
+                                    className="w-full h-full object-cover cursor-pointer"
+                                    onClick={handleImageClick}
+                                />
+                            )}
+                            <div className="absolute bottom left-0 right-0  bg-opacity-50 flex justify-center py-2 space-x-2">
                                 {thumbnails.map((thumbnail, index) => (
-                                    <div key={index} className={`w-16 h-16 border border-gray-600 cursor-pointer ${index === currentThumbnailIndex ? 'border-yellow-400' : ''}`} onClick={() => handleThumbnailClick(index)}>
-                                        <img src={thumbnail.src} alt={thumbnail.alt} className="w-full h-full object-cover" />
+                                    <div
+                                        key={index}
+                                        className={`w-16 h-16 border border-gray-600 cursor-pointer ${index === currentThumbnailIndex ? 'border-yellow-400' : ''}`}
+                                        onClick={() => handleThumbnailClick(index)}
+                                    >
+                                        {thumbnail.type === 'video' ? (
+                                            <video src={thumbnail.src} className="w-full h-full">
+                                                Your browser does not support the video tag.
+                                            </video>
+                                        ) : (
+                                            <img src={thumbnail.src} alt={thumbnail.alt} className="w-full h-full object-cover" />
+                                        )}
                                     </div>
                                 ))}
                             </div>
                         </div>
 
+                        <div className='h-16'></div>  
                         {/* 评论输入栏 */}
                         <div className="mt-6 bg-gray-800 p-4 rounded-lg text-white">
                             <h3 className="text-xl font-bold mb-4">发表评论</h3>
@@ -275,11 +335,11 @@ function GameDetail() {
 
                     {/* 右侧信息部分 */}
                     <div className="w-1/3 flex flex-col justify-between bg-gray-800 p-4 rounded-lg text-white" style={{ height: '60%' }}>
-                        <img src="/fengmian2.jpg" alt="宣传图" className="w-full h-1/2 object-cover mb-4" />
+                        <img src={game?.face_img} alt="宣传图" className="w-full h-1/2 object-cover mb-4" />
                         <div className="text-sm flex-1">
-                            <p className="mb-2">游戏简介内容。游戏简介内容。游戏简介内容。游戏简介内容。游戏简介内容。游戏简介内容。</p>
+                            <p className="mb-2">{game?.Description}</p>
                             <div className="mb-2">
-                                <span className="font-bold">发行时间：</span> 2024年7月16日
+                                <span className="font-bold">发行时间：</span> {game?.g_time}
                             </div>
                             <div className="mb-2">
                                 <span className="font-bold">用户评分：</span> 8.5
@@ -288,7 +348,7 @@ function GameDetail() {
                                 <span className="font-bold">总体评价：</span> 特别好评 (584)
                             </div>
                             <div className="mb-2">
-                                <span className="font-bold">定位标签：</span> 动作, Rogue, 像素图形
+                                <span className="font-bold">定位标签：</span> {game?.style}
                             </div>
                             <div className="mt-4 flex items-center space-x-2">
                                 <div className="flex space-x-1">

@@ -35,7 +35,7 @@ export default function Carousel() {
     if (isPaused) return; // 如果暂停则不设置计时器
     const interval = setInterval(() => {
       handleNextSlide();
-    }, 1000); // 每五秒切换一次
+    }, 5000); // 每五秒切换一次
 
     return () => {
       clearInterval(interval);
