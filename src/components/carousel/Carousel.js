@@ -17,7 +17,7 @@ export default function Carousel() {
     const { data, error } = await supabase
         .from('game')
         .select('*')
-        .in('g_id', [1,12,23,13])
+        .in('g_id', [1,12,13,23])
     if (error) {
         console.error('Error fetching games:', error);
     } else {

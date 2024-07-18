@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "types": ["hoist-non-react-statics"],
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
