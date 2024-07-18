@@ -4,14 +4,17 @@ import { supabase } from "@/lib/api";
 import Link from 'next/link';
 import Head from 'next/head';
 import useUserStore from '@/lib/useStore';
+import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import Image from 'next/image';
+import Carousel from '@/components/carousel/Carousel';
 import { link } from 'fs';
+import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
-
-//背景
+// 背景
 const BackgroundDiv = styled.div`
-  background-image: url('fengmian1.jpg');
+  background-image: url('fengmian2.jpg');
   background-size: cover;
   background-position: center;
   min-height: 100vh;
@@ -29,7 +32,7 @@ const BackgroundDiv = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 3, 15, 0.29); /* 半透明白色覆盖层 */
+    background-color: rgba(0, 3, 15, 0.09); /* 半透明黑色覆盖层 */
     z-index: 0;
   }
 
@@ -39,7 +42,7 @@ const BackgroundDiv = styled.div`
   }
 `;
 
-//半透明框父容器
+// 半透明框父容器
 const CenteredContainer = styled.div`
   display: flex; /* 使用Flexbox布局 */
   justify-content: center; /* 水平居中 */
@@ -48,9 +51,9 @@ const CenteredContainer = styled.div`
   margin-bottom: -2rem;
 `;
 
-//白色半透明框（链接版）
+// 黑色半透明框（链接版）
 const FormContainer = styled.a`
-  background: rgba(255, 255, 255, 0.90);
+  background: rgba(0, 0, 0, 0.70);
   padding: 2rem;
   border-radius: 25px;
   border: 2px solid #000;
@@ -67,13 +70,16 @@ const FormContainer = styled.a`
   animation: slideUp 0.6s ease-out forwards;
   margin-bottom: 2rem;  /*useless?*/
   transition: transform 0.3s ease; /*smoothness of clicking*/
+  color: hsl(0, 0%, 75%);
 
   &:last-child {
     margin-bottom: 0;
   }     
 
   &:hover {
+    background: rgba(50, 30, 50, 0.80);  
     transform: scale(1.02);
+    color: white;
   }
 `;
 
@@ -88,14 +94,14 @@ const FlexContainer = styled.div`
   height: 100%; // 高度填满父容器
 `;
 
-//图片缩放
+// 图片缩放
 const imaStyle: CSSProperties = {
   width: '200px', // 设置图片的宽度
   height: 'auto', // 保持图片的高度自动调整
   objectFit: 'cover' // 保持图片的比例
 };
 
-//按钮设置
+// 按钮设置
 const ImageButton = ({ imageUrl, onClick }) => {
   return (
     <button onClick={onClick} style={{
@@ -104,7 +110,6 @@ const ImageButton = ({ imageUrl, onClick }) => {
       position: 'relative', // 设置相对定位
       top: '7px', // 假设红框的顶部距离是50px
       right: '0',
-      // transform: 'translateX(724px)',
       cursor: 'ns-resize' // 确保鼠标悬停时显示为指针
     }}>
       <img src="butt.png" alt="Image Button" style={{ width: '25px', height: '40px' }} />
@@ -112,7 +117,7 @@ const ImageButton = ({ imageUrl, onClick }) => {
   );
 };
 
-//灰色实线(竖线)
+// 灰色实线(竖线)
 const LineComponent = () => {
   const lineStyle = {
     width: '3px', // 线条宽度
@@ -125,13 +130,13 @@ const LineComponent = () => {
   return <div style={lineStyle} />;
 };
 
-//传图接口
+// 传图接口
 interface CustomElementProps {
   imageUrl: string;
   buttonStyleUrl: string;
 }
 
-//标号
+// 标号
 const Label = ({ text, style }) => {
   return (
     <div className="label" style={style}>
@@ -140,205 +145,144 @@ const Label = ({ text, style }) => {
   );
 };
 
+interface DragItem {
+  index: number;
+  id: string;
+  type: string;
+}
 
-const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl }) => {
-  // const [imageStyle, setImageStyle] = useState<React.CSSProperties>({});
-  // const [buttonStyle, setButtonStyle] = useState<React.CSSProperties>({});
-  const { user, logout} = useUserStore()
+const DraggableContainer = ({ id, index, moveContainer, children }) => {
+  const ref = React.useRef(null);
+  const [, drop] = useDrop({
+    accept: 'container',
+    hover(item: DragItem) {
+      if (!ref.current) {
+        return;
+      }
+      const dragIndex = item.index;
+      const hoverIndex = index;
+      if (dragIndex === hoverIndex) {
+        return;
+      }
+      moveContainer(dragIndex, hoverIndex);
+      item.index = hoverIndex;
+    },
+  });
+
+  const [{ isDragging }, drag] = useDrag({
+    type: 'container',
+    item: { id, index },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+
+  drag(drop(ref));
 
   return (
-    <BackgroundDiv>
+    <div ref={ref} style={{ opacity: isDragging ? 0.5 : 1 }}>
+      {children}
+    </div>
+  );
+};
+
+const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl }) => {
+  const { user, logout } = useUserStore();
+
+  const initialContainerData = [
+    { id: 1, img: 'fengmian1.jpg', title: 'Counter-Strike 2', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
+    { id: 2, img: 'fengmian2.jpg', title: 'Counter-Strike 2', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
+    { id: 3, img: 'fengmian1.jpg', title: 'Counter-Strike 2', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
+    { id: 4, img: 'fengmian2.jpg', title: '好好好', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
+  ];
+
+  const [containerData, setContainerData] = useState(initialContainerData);
+
+  const moveContainer = (dragIndex, hoverIndex) => {
+    const newContainerData = [...containerData];
+    const [removed] = newContainerData.splice(dragIndex, 1);
+    newContainerData.splice(hoverIndex, 0, removed);
+
+    setContainerData(newContainerData);
+  };
+
+  return (
+    <DndProvider backend={HTML5Backend}>
+      <BackgroundDiv>
         <div className="text-x text-gray-900 w-full">
           {/* 导航栏 */}
-          <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between w-full">   {/* 导航栏 */}
-              <div className="text-white flex items-center space-x-4">
-                  <a href="#">
-                      <img src="https://store.akamai.steamstatic.com/public/shared/images/header/logo_steam.svg?t=962016" width="176" height="44" alt="Steam 主页链接"/>
-                  </a>
-                  <ul className="flex items-center space-x-6">
-                      <li>
-                          <a href="#" className="hover:text-gray-400 text-white">商店</a>
-                      </li>
-                      {/* <li>
-                          <a href="#" className="hover:text-gray-400 text-white">库</a>
-                      </li> */}
-                      <li>
-                          <a href="#" className="hover:text-gray-400 text-white">username</a>
-                      </li>
-                      <li>
-                          <a href="#" className="hover:text-gray-400 text-white">收藏</a>
-                      </li>
-                      <li>
-                          <a href="#" className="hover:text-gray-400 text-white">排行榜</a>
-                      </li>
-                  </ul>
-              </div>
-                    
-              <div className="flex flex-col justify-center space-y-2">
-                  <label htmlFor="#" className="text-xl text-white px-2">username</label>
-                  <Link href="/login" className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline" onClick={() => logout()}>退出账户</Link>
-              </div>
+          <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between w-full">
+            <div className="text-white flex items-center space-x-4">
+              <a href="#">
+                <img src="https://store.akamai.steamstatic.com/public/shared/images/header/logo_steam.svg?t=962016" width="176" height="44" alt="Steam 主页链接" />
+              </a>
+              <ul className="flex items-center space-x-6">
+                <li>
+                  <a href="#" className="hover:text-gray-400 text-white">商店</a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-gray-400 text-white">username</a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-gray-400 text-white">收藏</a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-gray-400 text-white">排行榜</a>
+                </li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col justify-center space-y-2">
+              <label htmlFor="#" className="text-xl text-white px-2">username</label>
+              <Link href="/login" className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline" onClick={() => logout()}>退出账户</Link>
+            </div>
           </nav>
         </div>
 
         <div className="container mx-auto my-10 flex-1 rounded items-center justify-between w-full">
-        <CenteredContainer>
-            <FormContainer href="/login">
-              <FlexContainer>
-                <div className="flex items-center">
-                  <div className="mr-2">
-                    <Label text="1" style={{ margin: '0 10px 0 0' }} />
-                  </div>
-                  <div className="mr-7">
-                    <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
-                  </div>
-                  <div className='mr-6'><LineComponent /></div>
-                  <div className="flex-1">
-                    <h2>Counter-Strike 2</h2>
-                    <div className="tags">
-                      <span>第一人称射击</span>
-                      <span>射击</span>
-                      <span>多人</span>
-                      <span>竞技</span>
-                      <span>动作</span>
+          {containerData.map((data, index) => (
+            <DraggableContainer key={data.id} id={data.id} index={index} moveContainer={moveContainer}>
+              <CenteredContainer>
+                <FormContainer href="/login">
+                  <FlexContainer>
+                    <div className="flex items-center">
+                      <div className="mr-2">
+                        <Label text={index + 1} style={{ margin: '0 10px 0 0' }} />
+                      </div>
+                      <div className="mr-7">
+                        <img src={data.img} alt="Image" style={{ width: '250px', height: '100px' }} />
+                      </div>
+                      <div className='mr-6'><LineComponent /></div>
+                      <div className="flex-1">
+                        <h2>{data.title}</h2>
+                        <div className="tags">
+                          {data.tags.map((tag, i) => (
+                            <span key={i}>{tag}</span>
+                          ))}
+                        </div>
+                        <div className="info">
+                          <div className="release-date">
+                            <span>发行日期：</span>
+                            <span>{data.date}</span>
+                          </div>
+                          <div className="rating">
+                            <span>总体评价：</span>
+                            <span>{data.rating}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement} />
+                      </div>
                     </div>
-                    <div className="info">
-                      <div className="release-date">
-                        <span>发行日期：</span>
-                        <span>2012 年 8 月 22 日</span>
-                      </div>
-                      <div className="rating">
-                        <span>总体评价：</span>
-                        <span>特别好评</span>
-                      </div>
-                  </div>
-                  </div>
-                  <div className="ml-4">
-                    <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
-                  </div>
-                </div>
-              </FlexContainer>
-            </FormContainer>
-          </CenteredContainer>                  
-
-          <CenteredContainer>
-            <FormContainer href="/login">
-              <FlexContainer>
-                <div className="flex items-center">
-                  <div className="mr-2">
-                    <Label text="2" style={{ margin: '0 10px 0 0' }} />
-                  </div>
-                  <div className="mr-7">
-                    <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
-                  </div>
-                  <div className='mr-6'><LineComponent /></div>
-                  <div className="flex-1">
-                    <h2>Counter-Strike 2</h2>
-                    <div className="tags">
-                      <span>第一人称射击</span>
-                      <span>射击</span>
-                      <span>多人</span>
-                      <span>竞技</span>
-                      <span>动作</span>
-                    </div>
-                    <div className="info">
-                      <div className="release-date">
-                        <span>发行日期：</span>
-                        <span>2012 年 8 月 22 日</span>
-                      </div>
-                      <div className="rating">
-                        <span>总体评价：</span>
-                        <span>特别好评</span>
-                      </div>
-                  </div>
-                  </div>
-                  <div className="ml-4">
-                    <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
-                  </div>
-                </div>
-              </FlexContainer>
-            </FormContainer>
-          </CenteredContainer> 
-
-          <CenteredContainer>
-            <FormContainer href="/login">
-              <FlexContainer>
-                <div className="flex items-center">
-                  <div className="mr-2">
-                    <Label text="3" style={{ margin: '0 10px 0 0' }} />
-                  </div>
-                  <div className="mr-7">
-                    <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
-                  </div>
-                  <div className='mr-6'><LineComponent /></div>
-                  <div className="flex-1">
-                    <h2>Counter-Strike 2</h2>
-                    <div className="tags">
-                      <span>第一人称射击</span>
-                      <span>射击</span>
-                      <span>多人</span>
-                      <span>竞技</span>
-                      <span>动作</span>
-                    </div>
-                    <div className="info">
-                      <div className="release-date">
-                        <span>发行日期：</span>
-                        <span>2012 年 8 月 22 日</span>
-                      </div>
-                      <div className="rating">
-                        <span>总体评价：</span>
-                        <span>特别好评</span>
-                      </div>
-                  </div>
-                  </div>
-                  <div className="ml-4">
-                    <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
-                  </div>
-                </div>
-              </FlexContainer>
-            </FormContainer>
-          </CenteredContainer> 
-
-          <CenteredContainer>
-            <FormContainer href="/login">
-              <FlexContainer>
-                <div className="flex items-center">
-                  <div className="mr-2">
-                    <Label text="4" style={{ margin: '0 10px 0 0' }} />
-                  </div>
-                  <div className="mr-7">
-                    <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
-                  </div>
-                  <div className='mr-6'><LineComponent /></div>
-                  <div className="flex-1">
-                    <h2>好好好</h2>
-                    <div className="tags">
-                      <span>第一人称射击</span>
-                      <span>射击</span>
-                      <span>多人</span>
-                      <span>竞技</span>
-                      <span>动作</span>
-                    </div>
-                    <div className="info">
-                      <div className="release-date">
-                        <span>发行日期：</span>
-                        <span>2012 年 8 月 22 日</span>
-                      </div>
-                      <div className="rating">
-                        <span>总体评价：</span>
-                        <span>特别好评</span>
-                      </div>
-                  </div>
-                  </div>
-                  <div className="ml-4">
-                    <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
-                  </div>
-                </div>
-              </FlexContainer>
-            </FormContainer>
-          </CenteredContainer> 
+                  </FlexContainer>
+                </FormContainer>
+              </CenteredContainer>
+            </DraggableContainer>
+          ))}
         </div>
       </BackgroundDiv>
+    </DndProvider>
   );
 };
 
