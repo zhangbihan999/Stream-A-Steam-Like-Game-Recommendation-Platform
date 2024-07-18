@@ -1,6 +1,6 @@
 "use client"
 import Link from 'next/link';
-import useUserStore from "@/lib/useStore";
+import useUserStore from "@/lib/useUserStore";
 import styled from '@emotion/styled';
 import Carousel from '@/components/carousel/Carousel';
 import Scroll from '@/components/scroll/Scroll'

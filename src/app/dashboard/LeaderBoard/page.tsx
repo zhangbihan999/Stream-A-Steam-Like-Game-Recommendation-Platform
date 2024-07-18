@@ -1,6 +1,6 @@
 "use client"
 import Link from 'next/link';
-import useUserStore from "@/lib/useStore";
+import useUserStore from "@/lib/useUserStore";
 import styled from '@emotion/styled';
 import { useState } from 'react';
 

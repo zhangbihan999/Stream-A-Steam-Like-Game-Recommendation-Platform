@@ -82,7 +82,7 @@ export default function Home() {
       .from('user')
       .insert([
         { 
-          id: id,
+          u_id: id,
           name: name.value,
           password: password.value,
         }
