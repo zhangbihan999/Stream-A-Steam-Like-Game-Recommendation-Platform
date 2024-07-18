@@ -4,10 +4,8 @@ import { supabase } from "@/lib/api";
 import Link from 'next/link';
 import Head from 'next/head';
 import useUserStore from '@/lib/useStore';
-import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import Image from 'next/image';
-import Carousel from '@/components/carousel/Carousel';
 import { link } from 'fs';
 
 
@@ -189,7 +187,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
               <FlexContainer>
                 <div className="flex items-center">
                   <div className="mr-2">
-                    <Label text="2" style={{ margin: '0 10px 0 0' }} />
+                    <Label text="1" style={{ margin: '0 10px 0 0' }} />
                   </div>
                   <div className="mr-7">
                     <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
