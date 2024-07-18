@@ -33,7 +33,7 @@ export default function Home() {
         const { data, error } = await supabase
             .from('game')
             .select('*')
-            .in('g_id', [2,3,4,5,6,7,8,9,10,11])
+            .in('g_id', [2,4,5,9,11,14,15,16,18,20,21,22,25,26,27,28,29,30])
         if (error) {
             console.error('Error fetching games:', error);
         } else {

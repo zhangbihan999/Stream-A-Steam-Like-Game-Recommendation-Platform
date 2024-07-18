@@ -18,7 +18,7 @@ export default function Scroll() {
     const { data, error } = await supabase
         .from('game')
         .select('*')
-        .in('g_id', [6,3,24,8,17,10])
+        .in('g_id', [3,6,8,10,17,24])
     if (error) {
         console.error('Error fetching games:', error);
     } else {
