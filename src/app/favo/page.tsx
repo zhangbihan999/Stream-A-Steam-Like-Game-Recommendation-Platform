@@ -22,16 +22,32 @@ const BackgroundDiv = styled.div`
   justify-content: center;
   align-items: center; /* Center the form container */
   padding: 2rem;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 3, 15, 0.29); /* 半透明白色覆盖层 */
+    z-index: 0;
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
 `;
 
 //半透明框父容器
 const CenteredContainer = styled.div`
   display: flex; /* 使用Flexbox布局 */
   justify-content: center; /* 水平居中 */
-  height: 24vh; /* 调整白色半透明容器之间的距离(宽度比例) */
-  margin-bottom: -1rem;
+  height: 22vh; /* 调整白色半透明容器之间的距离(宽度比例) */
+  margin-bottom: -2rem;
 `;
-
 
 //白色半透明框（链接版）
 const FormContainer = styled.a`
@@ -59,13 +75,13 @@ const FormContainer = styled.a`
   }
 `;
 
-// FormContainer内的子元素样式
+// 调整FormContainer内的子元素
 const FlexContainer = styled.div`
   display: flex; /* 使用Flexbox布局 */
   flex-direction: column; /* 子元素垂直排列 */
   justify-content: center; /* 子元素在容器中垂直居中 */
   gap: 1rem; /* 子元素之间的间距 */
-  transform: translateY(-5px); /*半透明容器内部元素相对容器的垂直偏移*/
+  transform: translateY(-9px); /*半透明容器内部元素相对容器的垂直偏移*/
 `;
 
 //图片缩放
@@ -87,8 +103,8 @@ const ImageButton = ({ imageUrl, onClick }) => {
 //灰色实线(竖线)
 const LineComponent = () => {
   const lineStyle = {
-    width: '3px', // 线条宽度，现在是竖线的高度
-    height: '80px', // 线条高度，现在是竖线的长度
+    width: '3px', // 线条宽度
+    height: '80px', // 线条长度
     backgroundColor: '#A9A9A9', // 深灰色
     margin: '0 10px', // 调整为左右外边距
     display: 'inline-block', // 确保div以行内块元素显示
@@ -102,6 +118,16 @@ interface CustomElementProps {
   imageUrl: string;
   buttonStyleUrl: string;
 }
+
+//标号
+const Label = ({ text, style }) => {
+  return (
+    <div className="label" style={style}>
+      {text}
+    </div>
+  );
+};
+
 
 const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl }) => {
   // const [imageStyle, setImageStyle] = useState<React.CSSProperties>({});
@@ -148,6 +174,9 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
             <FormContainer href="/login">
               <FlexContainer>
                 <div className="flex items-center">
+                  <div className="mr-2">
+                    <Label text="1" style={{ margin: '0 10px 0 0' }} />
+                  </div>
                   <div className="mr-7">
                     <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
                   </div>
@@ -170,7 +199,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                         <span>总体评价：</span>
                         <span>特别好评</span>
                       </div>
-                  </div>
+                    </div>
                   </div>
                   <div className="ml-4">
                     <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement}/>
@@ -184,6 +213,9 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
             <FormContainer href="/login">
               <FlexContainer>
                 <div className="flex items-center">
+                  <div className="mr-2">
+                    <Label text="2" style={{ margin: '0 10px 0 0' }} />
+                  </div>
                   <div className="mr-7">
                     <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
                   </div>
@@ -220,6 +252,9 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
             <FormContainer href="/login">
               <FlexContainer>
                 <div className="flex items-center">
+                  <div className="mr-2">
+                    <Label text="3" style={{ margin: '0 10px 0 0' }} />
+                  </div>
                   <div className="mr-7">
                     <img src="fengmian1.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
                   </div>
@@ -256,6 +291,9 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
             <FormContainer href="/login">
               <FlexContainer>
                 <div className="flex items-center">
+                  <div className="mr-2">
+                    <Label text="4" style={{ margin: '0 10px 0 0' }} />
+                  </div>
                   <div className="mr-7">
                     <img src="fengmian2.jpg" alt="Image" style={{ width: '250px', height: '100px' }} />
                   </div>
