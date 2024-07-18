@@ -59,6 +59,9 @@ function GameDetail() {
     const [hoverRating, setHoverRating] = useState(0); // 鼠标悬停评分
     const [isModalOpen, setIsModalOpen] = useState(false); // 控制放大查看图像的状态
     const [isPaused, setIsPaused] = useState(false); // 控制轮播图的暂停状态
+    const [pauseDueToHover, setPauseDueToHover] = useState(false);   // 是否因为鼠标悬停而暂停轮播
+    const [videoPlay, setVideoPlay] = useState(false)
+    const [videoEnded, setVideoEnded] = useState(false)   // 视频是否结束
     const [comment, setComment] = useState(''); // 评论状态
     const [comments, setComments] = useState([]); // 评论列表状态
     const [isFavorite, setIsFavorite] = useState(false);
@@ -127,6 +130,36 @@ function GameDetail() {
         setIsPaused(false);
     };
 
+    // 鼠标进入展示区域
+    const handleMouseEnterMainImage = () => {
+        setPauseDueToHover(true); // 标记由于鼠标悬停而暂停
+    };
+
+    // 鼠标离开展示区域
+    const handleMouseLeaveMainImage = () => {
+        setPauseDueToHover(false); // 清除鼠标悬停暂停标记
+    };
+
+    // 视频播放开始
+    const handleVideoPlay = () => {
+        /* if (currentMedia.type === 'video') {
+            setIsPaused(false); // 当视频结束时恢复轮播，不受鼠标悬停影响
+        } */
+       /* setIsPaused(true) */
+       setVideoPlay(true)
+       setVideoEnded(false)
+    };
+
+    // 视频播放结束
+    const handleVideoEnded = () => {
+        /* if (currentMedia.type === 'video') {
+            setIsPaused(false); // 当视频结束时恢复轮播，不受鼠标悬停影响
+        } */
+       /* setIsPaused(false) */
+       setVideoEnded(true)
+       setVideoPlay(false)
+    };
+
     const handleCommentChange = useCallback((e) => {
         setComment(e.target.value);
     }, []); // 空依赖数组意味着这个回调只会在组件挂载时创建一次
@@ -186,15 +219,37 @@ function GameDetail() {
             src: thumbnails[currentThumbnailIndex].src,
             type: thumbnails[currentThumbnailIndex].type
         });
+        if (currentMedia.type !== 'video') {
+            setVideoPlay(false)
+            setVideoEnded(false)
+        }
     }, [currentThumbnailIndex, thumbnails]);
 
-    useEffect(() => {
-        if (currentMedia.type === 'video') {
-            setIsPaused(true);  // 当前为视频时停止轮播
+    /* useEffect(() => {
+        if (videoPlay) {
+            setIsPaused(true)
+        } else if (videoEnded) {
+            setIsPaused(false)
+        } else if (pauseDueToHover) {
+            setIsPaused(true); // 当鼠标悬停时暂停轮播
+        } else if (currentMedia.type === 'video'){
+            setIsPaused(true); // 当视频不是开始也不是结束，但展示视频时停止轮播
         } else {
-            setIsPaused(false); // 不是视频时恢复轮播
+            setIsPaused(false)
         }
-    }, [currentMedia]);
+    }, [currentMedia, pauseDueToHover, videoPlay, videoEnded]); */ // 依赖于媒体类型和鼠标悬停状态  
+    
+    useEffect(() => {
+        if (videoPlay){
+            setIsPaused(true); // 当视频不是开始也不是结束，但展示视频时停止轮播
+        } else if (pauseDueToHover){
+            setIsPaused(true)
+        } else if (videoEnded){
+            setIsPaused(false)
+        } else {
+            setIsPaused(false)
+        }
+    }, [currentMedia])
 
     useEffect(() => {
         setMainImage(thumbnails[currentThumbnailIndex].src);
@@ -272,12 +327,17 @@ function GameDetail() {
                 <div className="flex container mx-auto space-x-6 items-stretch">
                     <div className="w-2/3 flex flex-col">
                         {/* 左侧大框和小框 */}
-                        <div className="flex-1 border border-gray-600 relative " style={{ height: '60%' }}>
+                        <div className="flex-1 border border-gray-600 relative " style={{ height: '60%' }}
+                        onMouseEnter={handleMouseEnterMainImage}
+                        onMouseLeave={handleMouseLeaveMainImage}
+                        >
                             {currentMedia.type === 'video' ? (
                                 <video
                                     src={currentMedia.src}
-                                    controls autoPlay loop muted
+                                    controls autoPlay
                                     className="w-full h-full object-cover cursor-pointer"
+                                    onPlay={handleVideoPlay}
+                                    onEnded={handleVideoEnded}
                                 />
                             ) : (
                                 <img
