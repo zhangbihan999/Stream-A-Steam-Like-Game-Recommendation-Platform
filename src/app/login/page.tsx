@@ -9,7 +9,7 @@ import { BiLogOut } from "react-icons/bi";
 
 // 背景
 const BackgroundDiv = styled.div`
-  background-image: url('fengmian1.jpg');
+  background-image: url('/fengmian1.jpg');
   background-size: cover;
   background-position: center;
   min-height: 100vh;
