@@ -5,7 +5,7 @@ import { supabase } from "@/lib/api";
 import styled from '@emotion/styled';
 
 const BackgroundDiv = styled.div`
-  background-image: url('fengmian1.jpg');
+  background-image: url('/fengmian1.jpg');
   background-size: cover;
   background-position: center;
   min-height: 100vh;
