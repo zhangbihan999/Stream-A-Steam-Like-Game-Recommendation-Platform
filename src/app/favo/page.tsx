@@ -3,7 +3,7 @@ import React, { useState, useEffect, CSSProperties} from 'react';
 import { supabase } from "@/lib/api";
 import Link from 'next/link';
 import Head from 'next/head';
-import useUserStore from '@/lib/useStore';
+import useUserStore from '@/lib/useUserStore';
 import styled from '@emotion/styled';
 import Image from 'next/image';
 import { link } from 'fs';
