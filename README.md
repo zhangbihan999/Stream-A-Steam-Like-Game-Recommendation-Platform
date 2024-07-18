@@ -67,3 +67,9 @@ export default function Home() {
 ```
 
 运行`npm run dev`，进入本地的3000端口，如果页面正确展现了红色的 hello world，即设置成功。
+
+自定义排序需要新的支持：
+```
+npm install react-beautiful-dnd
+npm install react-router-dom
+```
