@@ -1,9 +1,10 @@
 'use client'
 import React, { useState, useEffect, CSSProperties, useRef} from 'react';
+import useUserStore from "@/lib/useUserStore";
+import useGameStore from "@/lib/useGameStore";
 import { supabase } from "@/lib/api";
 import Link from 'next/link';
 import Head from 'next/head';
-import useUserStore from '@/lib/useUserStore';
 import { useRouter } from 'next/navigation'
 import styled from '@emotion/styled';
 import Image from 'next/image';
@@ -131,6 +132,7 @@ interface CustomElementProps {
   buttonStyleUrl: string;
 }
 
+
 // 标号
 const Label = ({ text, style }) => {
   return (
@@ -183,13 +185,28 @@ const DraggableContainer = ({ id, index, moveContainer, children }) => {
 
 
 const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl }) => {
-  const { user, logout } = useUserStore();
+  const { user, logout, setUser } = useUserStore();
    // 定义用户信息
    const userInfo = {
     id: '12345',
     name: 'Wang Naizheng',
     password: 'encrypted_password' // 加密后的密码
 };
+const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
+const { game, setGame, exit } = useGameStore();  /* 游戏状态 */
+
+useEffect(() => {
+  // 确保组件在客户端渲染
+  setIsHydrated(true);
+  // 检查 localStorage 中是否有用户数据
+  const storedUserString = localStorage.getItem('user-storage');
+  if (storedUserString) {
+    const storedUser = JSON.parse(storedUserString);
+    if (storedUser && storedUser.state && storedUser.state.user) {
+      setUser(storedUser.state.user);
+    }
+  }
+}, [setUser]);
 
 const [showPassword, setShowPassword] = useState(false);
 
