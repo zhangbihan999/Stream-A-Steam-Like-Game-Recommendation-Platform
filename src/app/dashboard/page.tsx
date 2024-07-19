@@ -48,7 +48,6 @@ export default function Home() {
             setLoading(true)
             setGame(game); // 将点击的游戏设置为全局游戏状态
             router.push('/dashboard/GameDetail');  // 使用 Next.js 的 useRouter
-            console.log('被点击了:', game); // 输出更新后的游戏对象
         };
     };
     
