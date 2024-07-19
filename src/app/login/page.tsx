@@ -115,7 +115,7 @@ export default function Home() {
         return;
     }
 
-    setUser({id: userData.id, name: userData.name, password: userData.password});   /* 设置用户信息 */
+    setUser({u_id: userData.u_id, name: userData.name, password: userData.password});   /* 设置用户信息 */
     router.push('/dashboard'); 
   }
 

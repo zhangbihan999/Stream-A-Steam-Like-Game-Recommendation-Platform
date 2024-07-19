@@ -59,7 +59,7 @@ function GameDetail() {
     const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0)
     const [currentMedia, setCurrentMedia] = useState({src: null, type: null});
     const [currentRating, setCurrentRating] = useState(0); // 当前评分
-    const [hoverRating, setHoverRating] = useState(0); // 鼠标悬停评分
+    const [hoverRating, setHoverRating] = useState(0); // 鼠标悬停评分  
     const [isModalOpen, setIsModalOpen] = useState(false); // 控制放大查看图像的状态
     const [isPaused, setIsPaused] = useState(false); // 控制轮播图的暂停状态
     const [pauseDueToHover, setPauseDueToHover] = useState(false);   // 是否因为鼠标悬停而暂停轮播
@@ -95,6 +95,11 @@ function GameDetail() {
 
     const handleThumbnailClick = (index: number) => {
         setCurrentThumbnailIndex(index);
+        const isVideo = thumbnails[index].type === 'video';
+        setVideoPlay(isVideo); // 如果是视频，设置 videoPlay 为 true
+        if (!isVideo) {
+            setIsPaused(false); // 如果不是视频，立即恢复轮播
+        }
     };
 
     const handleMouseOver = useCallback((index: number) => {
@@ -105,8 +110,53 @@ function GameDetail() {
         setHoverRating(0);
     }, []);
 
-    const handleClick = useCallback((index: number) => {
+    
+
+    const handleClick = useCallback(async (index: number) => {
         setCurrentRating(index);
+        console.log(user.u_id, user.name, user.password);
+    
+        // 首先查询是否存在相应的评分记录
+        const { data: existingData, error: queryError } = await supabase
+            .from('ratings')
+            .select('*')
+            .eq('u_id', user.u_id)
+            .eq('g_id', game.g_id);
+    
+        if (queryError) {
+            console.error('Error querying data from Supabase', queryError);
+            return;
+        }
+    
+        // 如果存在记录，先删除
+        if (existingData && existingData.length > 0) {
+            const { error: deleteError } = await supabase
+                .from('ratings')
+                .delete()
+                .match({ u_id: user.u_id, g_id: game.g_id });
+    
+            if (deleteError) {
+                console.error('Error deleting existing rating', deleteError);
+                return;
+            }
+        }
+    
+        // 插入新的评分记录
+        const { data, error } = await supabase
+            .from('ratings')
+            .insert([
+                {
+                    u_id: user.u_id,
+                    g_id: game.g_id,
+                    rating: index
+                }
+            ]);
+    
+        if (error) {
+            console.error('Error inserting data into Supabase', error);
+        } else {
+            console.log('Data inserted successfully', data);
+        }
     }, []);
 
     const handleImageClick = () => {
@@ -131,20 +181,12 @@ function GameDetail() {
 
     // 视频播放开始
     const handleVideoPlay = () => {
-        /* if (currentMedia.type === 'video') {
-            setIsPaused(false); // 当视频结束时恢复轮播，不受鼠标悬停影响
-        } */
-       /* setIsPaused(true) */
        setVideoPlay(true)
        setVideoEnded(false)
     };
 
     // 视频播放结束
     const handleVideoEnded = () => {
-        /* if (currentMedia.type === 'video') {
-            setIsPaused(false); // 当视频结束时恢复轮播，不受鼠标悬停影响
-        } */
-       /* setIsPaused(false) */
        setVideoEnded(true)
        setVideoPlay(false)
     };
@@ -182,10 +224,34 @@ function GameDetail() {
         }
     }, [setUser]);
 
+    const loadCurrentRating = useCallback(async () => {
+        // 首先查询是否存在相应的评分记录
+        const { data: existingData, error: queryError } = await supabase
+            .from('ratings')
+            .select('*')
+            .eq('u_id', user?.u_id)
+            .eq('g_id', game?.g_id);
+    
+        if (queryError) {
+            console.error('Error querying data from Supabase', queryError);
+            return;
+        }
+    
+        // 如果存在记录，设置当前评分
+        if (existingData.length > 0) {
+            setCurrentRating(existingData[0].rating); // 假设每个用户和游戏组合只有一个评分记录
+        } else {
+            // 如果没有找到评分记录，可以选择设置一个默认评分或清除当前评分
+            setCurrentRating(0); // 或者设置默认值，如 setCurrentRating(0);
+        }
+    }, []);
+
     useEffect(() => {
         // 页面加载时自动滚动到顶部
         window.scrollTo(0, 0);
-    }, [router]);
+        // 查看是否存在评分，如果存在则自动渲染
+        loadCurrentRating();
+    }, [loadCurrentRating, router]); // 确保当 loadCurrentRating 函数或 router 变化时，重新执行 useEffect
 
     const thumbnails = [
         { src: game && game.img1, alt: '小图1', type: 'image' },
@@ -204,7 +270,7 @@ function GameDetail() {
 
             return () => clearInterval(interval);
         }
-    }, [thumbnails.length, isPaused]);
+    }, [isPaused]);
 
     useEffect(() => {
         setCurrentMedia({
@@ -213,34 +279,37 @@ function GameDetail() {
         });
         if (currentMedia.type !== 'video') {
             setVideoPlay(false)
-            setVideoEnded(false)
+            setVideoEnded(true)
         }
-    }, [currentThumbnailIndex, thumbnails]); 
+    }, [currentThumbnailIndex]); 
     
     useEffect(() => {
-        if (videoPlay){
-            setIsPaused(true); // 当视频不是开始也不是结束，但展示视频时停止轮播
-        } else if (pauseDueToHover){
-            setIsPaused(true)
-        } else if (videoEnded){
-            setIsPaused(false)
-        } else if (isModalOpen){
-            setIsPaused(true)
+        // 在这里处理暂停逻辑
+        if (videoPlay) {    
+            setIsPaused(true); // 当视频播放时停止轮播
+        } else if (pauseDueToHover) {
+            setIsPaused(true); // 鼠标悬停时停止轮播
+        } else if (videoEnded) {
+            setIsPaused(false); // 视频结束后恢复轮播
+        } else if (isModalOpen) {
+            setIsPaused(true); // 查看图像时停止轮播
         } else {
-            setIsPaused(false)
+            setIsPaused(false); // 其他情况下继续轮播
         }
-    }, [currentMedia])
+    }, [videoPlay, pauseDueToHover, videoEnded, isModalOpen]); // 更新依赖列表以包含 videoPlay
 
     useEffect(() => {
         setMainImage(thumbnails[currentThumbnailIndex].src);
-    }, [currentThumbnailIndex, thumbnails]);
+    }, [currentThumbnailIndex]);
 
     if (!isHydrated) {
         // 避免客户端和服务端渲染结果不一致的问题
         return null;
     }
 
-    
+    const test = (() => {
+        console.log("我被点了")
+    })    
 
     return (
         <BackgroundDiv>
@@ -360,7 +429,7 @@ function GameDetail() {
                                     value={comment}
                                     onChange={handleCommentChange}
                                 ></textarea>
-                                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">发布</button>
+                                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" onClick={test}>发布</button>
                             </form>
                             <div className="mt-12">
                                 <h3 className="text-xl font-bold mb-4">评论</h3>
