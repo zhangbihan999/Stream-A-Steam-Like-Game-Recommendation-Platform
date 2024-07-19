@@ -14,7 +14,7 @@ import { HTML5Backend } from 'react-dnd-html5-backend';
 
 // 背景
 const BackgroundDiv = styled.div`
-  background-image: url('fengmian2.jpg');
+  background-image: url('/fengmian2.jpg');
   background-size: cover;
   background-position: center;
   min-height: 100vh;
