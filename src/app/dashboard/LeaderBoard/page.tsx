@@ -33,7 +33,7 @@ export default function Home() {
         setLoading(true);
         let { data: gamesData, error } = await supabase
             .from('game')
-            .select('g_id, face_img, g_time, g_name, style'); // 添加 style 字段
+            .select('*');
 
         if (error) {
             console.error('Error fetching games:', error);
@@ -85,7 +85,7 @@ export default function Home() {
         return () => {
             setLoading(true);
             setGame(game); // 将点击的游戏设置为全局游戏状态
-            router.push(`/dashboard/GameDetail?g_id=${game.g_id}`); // 使用 useRouter 进行导航，传递游戏 ID
+            router.push('/dashboard/GameDetail'); // 使用 useRouter 进行导航，传递游戏 ID
             console.log('被点击了:', game); // 输出更新后的游戏对象
         };
     };
@@ -119,7 +119,7 @@ export default function Home() {
                         </ul>
                     </div>
                     <div className="flex flex-col justify-center space-y-2 text-base font-normal">
-                        <label htmlFor="#" className="text-xl text-white px-2">username</label>
+                        <label htmlFor="#" className="text-xl text-white px-2">{user?.name}</label>
                         <a href="/login"
                               className="upgrade-btn active-nav-link text-white text-base px-2 hover:text-blue-500 hover:underline"
                               onClick={() => logout()}>退出账户</a>
@@ -182,7 +182,9 @@ export default function Home() {
                                     <li key={index} className="flex items-center justify-between py-2 px-4 bg-gray-700 bg-opacity-80 rounded mb-2 hover:bg-gray-600 hover:bg-opacity-80 transition duration-300 cursor-pointer" onClick={handleClick(game)}>
                                         <span className="w-8 text-left text-base font-normal">{index + 1}</span>
                                         <div className="w-48 h-24 mr-4 flex-shrink-0">
-                                            <img src={game.face_img} alt={game.g_name} className="w-full h-full object-cover"/>
+                                            <img src={game.face_img} alt={game.g_name} className="w-full h-full object-cover"
+                                                onClick={handleClick(game)} 
+                                            />
                                         </div>
                                         <div className="flex-1 flex flex-col justify-center">
                                             <span className="text-xl font-bold mb-1">{game.g_name}</span>
