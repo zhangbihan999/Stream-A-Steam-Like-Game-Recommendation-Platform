@@ -47,7 +47,7 @@ export default function Home() {
         return () => {
             setLoading(true)
             setGame(game); // 将点击的游戏设置为全局游戏状态
-            router.push('/detail');  // 使用 Next.js 的 useRouter
+            router.push('/dashboard/GameDetail');  // 使用 Next.js 的 useRouter
         };
     };
     
