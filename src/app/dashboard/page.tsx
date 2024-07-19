@@ -4,7 +4,7 @@ import useGameStore from "@/lib/useGameStore";
 import styled from '@emotion/styled';
 import Carousel from '@/components/carousel/Carousel';
 import Scroll from '@/components/scroll/Scroll'
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from "@/lib/api";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
@@ -88,31 +88,30 @@ export default function Home() {
                   </a>
                   <label htmlFor="#" className='text-2xl'>STREAM</label>
                 </div>
-                  
+
                   <ul className="flex items-center space-x-6">
                       <li>
                           <a href="/dashboard" className="hover:text-gray-400 text-white">商店</a>
                       </li>
                       <li>
-                          <a href="#" className="hover:text-gray-400 text-white">{user?.name}</a>
+                          <a href="/favo" className="hover:text-gray-400 text-white">个人中心</a>
                       </li>
                       <li>
-                          <a href="#" className="hover:text-gray-400 text-white">收藏</a>
-                      </li>
-                      <li>
-                          <a href="#" className="hover:text-gray-400 text-white">排行榜</a>
+                          <a href="/dashboard/LeaderBoard" className="hover:text-gray-400 text-white">排行榜</a>
                       </li>
                   </ul>
               </div>
-                    
+
               <div className="flex flex-col justify-center space-y-2">
                   <label htmlFor="#" className="text-xl text-white px-2">{user?.name}</label>
-                  <Link href="/login" className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline" onClick={() => logout()}>退出账户</Link>
+                  <Link href="/login"
+                        className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline"
+                        onClick={() => logout()}>退出账户</Link>
               </div>
           </nav>
         </div>
 
-        <div className="container mx-auto my-10 flex-1 rounded items-center justify-center">
+          <div className="container mx-auto my-10 flex-1 rounded items-center justify-center">
           <div className="text-x text-gray-900">
             {/* 子导航栏 */}
             <div className="flex items-center px-4 py-3 bg-gray-600 justify-between">

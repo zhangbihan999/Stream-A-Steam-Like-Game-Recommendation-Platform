@@ -253,13 +253,10 @@ const togglePasswordVisibility = () => {
                             <a href="/dashboard" className="hover:text-gray-400 text-white">商店</a>
                         </li>
                         <li>
-                            <a href="#" className="hover:text-gray-400 text-white">{user?.name}</a>
+                            <a href="/favo" className="hover:text-gray-400 text-white">个人中心</a>
                         </li>
                         <li>
-                            <a href="#" className="hover:text-gray-400 text-white">收藏</a>
-                        </li>
-                        <li>
-                            <a href="#" className="hover:text-gray-400 text-white">排行榜</a>
+                            <a href="/dashboard/LeaderBoard" className="hover:text-gray-400 text-white">排行榜</a>
                         </li>
                     </ul>
                 </div>
