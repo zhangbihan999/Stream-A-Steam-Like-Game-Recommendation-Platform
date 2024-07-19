@@ -59,7 +59,7 @@ export default function Home() {
         if (orderBy === 'rating') {
             mergedData.sort((a, b) => b.rating - a.rating);
         } else if (orderBy === 'g_time') {
-            mergedData.sort((a, b) => new Date(b.g_time) - new Date(a.g_time));
+            mergedData.sort((a, b) => new Date(b.g_time).getTime() - new Date(a.g_time).getTime());
         }
 
         setGames(mergedData);
@@ -120,9 +120,9 @@ export default function Home() {
                     </div>
                     <div className="flex flex-col justify-center space-y-2 text-base font-normal">
                         <label htmlFor="#" className="text-xl text-white px-2">username</label>
-                        <Link href="/login"
+                        <a href="/login"
                               className="upgrade-btn active-nav-link text-white text-base px-2 hover:text-blue-500 hover:underline"
-                              onClick={() => logout()}>退出账户</Link>
+                              onClick={() => logout()}>退出账户</a>
                     </div>
                 </nav>
             </div>
