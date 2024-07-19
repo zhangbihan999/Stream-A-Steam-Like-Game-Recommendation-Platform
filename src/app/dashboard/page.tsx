@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from "@/lib/api";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
+import { LoadingOverlay } from "@/components/loading";
 
 export default function Home() {
     // 将 SVG 内容嵌入 styled-component
@@ -27,6 +28,7 @@ export default function Home() {
     const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
     const [games, setGames] = useState([]); // 存储游戏数据
     const router = useRouter();
+    const [loading, setLoading] = useState(false)  //是否正在加载
 
     // 从 Supabase 获取游戏数据
     const fetchGames = async () => {
@@ -43,6 +45,7 @@ export default function Home() {
 
     const handleClick = (game) => {
         return () => {
+            setLoading(true)
             setGame(game); // 将点击的游戏设置为全局游戏状态
             router.push('/dashboard/GameDetail');  // 使用 Next.js 的 useRouter
             console.log('被点击了:', game); // 输出更新后的游戏对象
@@ -63,7 +66,7 @@ export default function Home() {
         // 获取游戏数据
         fetchGames();
       }, [setUser]);
-    
+
     if (!isHydrated) {
         // 避免客户端和服务端渲染结果不一致的问题
         return null;
@@ -71,6 +74,11 @@ export default function Home() {
 
     return (
       <BackgroundDiv>
+        {loading && (
+            <LoadingOverlay>
+                <div className="loader">Loading...</div>
+            </LoadingOverlay>
+        )}
         <div className="text-x text-gray-900">
           {/* 导航栏 */}
           <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between ">   {/* 导航栏 */}
@@ -84,11 +92,8 @@ export default function Home() {
                   
                   <ul className="flex items-center space-x-6">
                       <li>
-                          <a href="#" className="hover:text-gray-400 text-white">商店</a>
+                          <a href="/dashboard" className="hover:text-gray-400 text-white">商店</a>
                       </li>
-                      {/* <li>
-                          <a href="#" className="hover:text-gray-400 text-white">库</a>
-                      </li> */}
                       <li>
                           <a href="#" className="hover:text-gray-400 text-white">{user?.name}</a>
                       </li>

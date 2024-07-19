@@ -180,8 +180,6 @@ function GameDetail() {
                 setUser(storedUser.state.user);
             }
         }
-        // 获取游戏数据
-        /* fetchGame() */
     }, [setUser]);
 
     useEffect(() => {
