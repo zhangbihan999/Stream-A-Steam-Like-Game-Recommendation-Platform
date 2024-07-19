@@ -46,9 +46,10 @@ export default function Home() {
     const handleClick = (game) => {
         return () => {
             setLoading(true)
-            setGame(game); // 将点击的游戏设置为全局游戏状态
-            console.log(game)
-            router.push('/dashboard/GameDetail');  // 使用 Next.js 的 useRouter
+            setTimeout(() => {
+                setGame(game); // 更新游戏状态
+                router.push('/dashboard/GameDetail'); // 跳转到详细页面
+            }, 300); // 给予300毫秒的延迟确保加载覆盖层显示
         };
     };
     
