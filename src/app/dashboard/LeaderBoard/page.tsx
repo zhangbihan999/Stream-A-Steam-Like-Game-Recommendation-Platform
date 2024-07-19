@@ -26,6 +26,7 @@ export default function Home() {
         { image: '/fengmian1.jpg', name: '永劫无间', releaseDate: '2024-07-02', rating: '8.5' },
         { image: '/fengmian1.jpg', name: 'The First Descendant', releaseDate: '2024-06-25', rating: '8.0' },
         { image: '/fengmian1.jpg', name: '七日世界', releaseDate: '2024-07-09', rating: '9.5' },
+        { image: '/fengmian1.jpg', name: '七日世界', releaseDate: '2024-07-09', rating: '9.5' },
         { image: '/fengmian1.jpg', name: '活侠传', releaseDate: '2024-07-02', rating: '7.5' },
         { image: '/fengmian1.jpg', name: '活侠传', releaseDate: '2024-07-02', rating: '7.5' }
     ];
@@ -104,7 +105,7 @@ export default function Home() {
                             <li className={`py-2 px-4 hover:bg-gray-500 cursor-pointer ${activeButton === '发售时间' ? 'bg-gray-600' : ''}`} onClick={() => handleTitleChange("最新上线", "发售时间")}>发售时间</li>
                         </ul>
                     </aside>
-                    <main className="w-4/5 p-4 bg-gray-800 text-white">
+                    <main className="w-4/5 p-4 bg-gray-800 bg-opacity-80 text-white">
                         <div className="flex justify-between mb-4 px-4 items-center">
                             <h2 className="text-xl flex-1">{rankingTitle}</h2>
                             <div className="w-1/6 text-center">
@@ -116,7 +117,8 @@ export default function Home() {
                         </div>
                         <ul>
                             {games.map((game, index) => (
-                                <li key={index} className="flex items-center justify-between py-2 px-4 bg-gray-700 rounded mb-2 hover:bg-gray-600 transition duration-300 cursor-pointer">
+                                <li key={index} className="flex items-center justify-between py-2 px-4 bg-gray-700 bg-opacity-80 rounded mb-2 hover:bg-gray-600 hover:bg-opacity-80 transition duration-300 cursor-pointer">
+                                    <span className="w-8 text-left">{index + 1}</span>
                                     <img src={game.image} alt={game.name} className="w-32 h-18 object-cover mr-4"/>
                                     <span className="flex-1">{game.name}</span>
                                     <span className="w-1/6 text-center">{game.releaseDate}</span>
