@@ -335,9 +335,9 @@ function GameDetail() {
 
                     <div className="flex flex-col justify-center space-y-2">
                         <label htmlFor="#" className="text-xl text-white px-2">{user?.name}</label>
-                        <Link href="/login"
+                        <a href="/login"
                               className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline"
-                              onClick={() => logout()}>退出账户</Link>
+                              onClick={() => logout()}>退出账户</a>
                     </div>
                 </nav>
             </div>
