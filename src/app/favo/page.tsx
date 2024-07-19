@@ -1,14 +1,13 @@
 'use client'
-import React, { useState, useEffect, CSSProperties, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/lib/api";
 import Link from 'next/link';
 import Head from 'next/head';
 import useUserStore from '@/lib/useUserStore';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 import styled from '@emotion/styled';
 import Image from 'next/image';
 import Carousel from '@/components/carousel/Carousel';
-import { link } from 'fs';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { useSpring, animated } from 'react-spring';
@@ -146,8 +145,41 @@ interface DragItem {
   type: string;
 }
 
+// 自动滚动钩子
+const useAutoScroll = (isDragging) => {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e) => {
+      const { clientY } = e;
+      const { innerHeight } = window;
+
+      if (clientY < 100) {
+        window.scrollBy(0, -10);
+      } else if (clientY > innerHeight - 100) {
+        window.scrollBy(0, 10);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isDragging]);
+
+  return scrollRef;
+};
+
+
+
 const DraggableContainer = ({ id, index, moveContainer, children }) => {
-  const ref = React.useRef(null);
+  const ref = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const scrollRef = useAutoScroll(isDragging);
+  const [{ opacity }, setSpring] = useSpring(() => ({ opacity: 1 }));
+
   const [, drop] = useDrop({
     accept: 'container',
     hover(item: DragItem) {
@@ -164,7 +196,7 @@ const DraggableContainer = ({ id, index, moveContainer, children }) => {
     },
   });
 
-  const [{ isDragging }, drag] = useDrag({
+  const [{ isDragging: monitorIsDragging }, drag, preview] = useDrag({
     type: 'container',
     item: { id, index },
     collect: (monitor) => ({
@@ -172,14 +204,24 @@ const DraggableContainer = ({ id, index, moveContainer, children }) => {
     }),
   });
 
+  useEffect(() => {
+    setIsDragging(monitorIsDragging);
+    if (monitorIsDragging) {
+      setSpring({ opacity: 0.5 });
+    } else {
+      setSpring({ opacity: 1 });
+    }
+  }, [monitorIsDragging, setSpring]);
+
   drag(drop(ref));
 
   return (
-    <div ref={ref} style={{ opacity: isDragging ? 0.5 : 1 }}>
+    <animated.div ref={(node) => { ref.current = node; scrollRef.current = node; }} style={{ opacity }}>
       {children}
-    </div>
+    </animated.div>
   );
 };
+
 
 
 const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl }) => {
