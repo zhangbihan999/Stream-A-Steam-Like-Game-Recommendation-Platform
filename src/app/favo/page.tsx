@@ -183,17 +183,61 @@ const DraggableContainer = ({ id, index, moveContainer, children }) => {
   );
 };
 
-
+/* 主界面 */
 const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl }) => {
-  const { user, logout, setUser } = useUserStore();
-    // 定义用户信息
-    const userInfo = {
-      id: '12345',
-      name: 'Wang Naizheng',
-      password: 'encrypted_password' // 加密后的密码
+  const { user, logout, setUser } = useUserStore();   /* 用户状态 */
+  const { game, setGame, exit } = useGameStore();  /* 游戏状态 */
+  // 定义用户信息
+  const userInfo = {
+    id: user?.u_id,
+    name: user?.name,
+    password: user?.password // 加密后的密码
   };
   const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
-  const { game, setGame, exit } = useGameStore();  /* 游戏状态 */
+  const [games, setGames] = useState([]); // 存储游戏数据
+  // 从 Supabase 获取游戏数据
+  const fetchGames = async () => {
+    try {
+      // 查询 collections 表来找出所有当前用户的收藏
+      let { data: collections, error: collectionsError } = await supabase
+        .from('collections')
+        .select('g_id, index')
+        .eq('u_id', user.u_id);
+      
+      if (collectionsError) {
+        console.error('Error fetching collections:', collectionsError);
+        return;
+      }
+
+      // 使用得到的 g_id 值去查询 game 表
+      const gameIds = collections.map(col => col.g_id);
+      if (gameIds.length > 0) {
+        let { data: gamesData, error: gamesError } = await supabase
+          .from('game')
+          .select('*')
+          .in('g_id', gameIds);
+        
+        if (gamesError) {
+          console.error('Error fetching games:', gamesError);
+          return;
+        }
+
+        // 合并游戏数据和 collections 的 index，并进行排序
+        const mergedData = gamesData.map(game => {
+          const collection = collections.find(col => col.g_id === game.g_id);
+          return { ...game, index: collection ? collection.index : null };
+        }).sort((a, b) => a.index - b.index); // 使用 sort 方法按 index 排序
+        
+        setGames(mergedData);
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchGames()
+  }, [])
 
   useEffect(() => {
     // 确保组件在客户端渲染
@@ -214,26 +258,16 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
     setShowPassword(!showPassword);
   }
 
-  const initialContainerData = [
-    { id: 1, img: 'fengmian1.jpg', title: 'Counter-Strike 2', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
-    { id: 2, img: 'fengmian2.jpg', title: 'Counter-Strike 2', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
-    { id: 3, img: 'fengmian1.jpg', title: 'Counter-Strike 2', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
-    { id: 4, img: 'fengmian2.jpg', title: '好好好', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
-    { id: 5, img: 'fengmian1.jpg', title: '牛牛牛', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
-    { id: 6, img: 'fengmian2.jpg', title: '王乃正', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
-    { id: 7, img: 'fengmian1.jpg', title: '严耀祖', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
-    { id: 8, img: 'fengmian2.jpg', title: '张琛', tags: ['第一人称射击', '射击', '多人', '竞技', '动作'], date: '2012 年 8 月 22 日', rating: '特别好评' },
-  ];
-
-  const [containerData, setContainerData] = useState(initialContainerData);
-
   const moveContainer = (dragIndex, hoverIndex) => {
-    const newContainerData = [...containerData];
-    const [removed] = newContainerData.splice(dragIndex, 1);
-    newContainerData.splice(hoverIndex, 0, removed);
-
-    setContainerData(newContainerData);
-  };
+    // 克隆当前游戏数组来避免直接修改状态
+    const newGamesArray = [...games];
+    // 从数组中移除被拖动的项目
+    const [removed] = newGamesArray.splice(dragIndex, 1);
+    // 在新位置重新插入被移除的项目
+    newGamesArray.splice(hoverIndex, 0, removed);
+    // 更新游戏状态
+    setGames(newGamesArray);
+};
 
   if (!isHydrated) {
     // 避免客户端和服务端渲染结果不一致的问题
@@ -326,8 +360,8 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
 
             {/* 收藏信息部分 */}
             <main className="flex-1">
-                {containerData.map((data, index) => (
-                    <DraggableContainer key={data.id} id={data.id} index={index} moveContainer={moveContainer}>
+                {games.map((game, index) => (
+                    <DraggableContainer key={game.g_id} id={game.g_id} index={index} moveContainer={moveContainer}>
                         <CenteredContainer>
                             <FormContainer href="/login">
                                 <FlexContainer>
@@ -336,27 +370,26 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                                             <Label text={index + 1} style={{ margin: '0 10px 0 0' }} />
                                         </div>
                                         <div className="mr-7">
-                                            <img src={data.img} alt="Image" className="w-40 md:w-64 h-24" />
+                                            <img src={game.face_img} alt="Image" className="w-40 md:w-64 h-24" />
                                         </div>
                                         <div className='mr-6'>
                                             <LineComponent />
                                         </div>
                                         <div className="flex-1">
-                                            <h2>{data.title}</h2>
+                                            <h2>{game?.g_name}</h2>
                                             <div className="tags">
-                                                {data.tags.map((tag, i) => (
-                                                    <span key={i}>{tag}</span>
-                                                ))}
+                                                <span>{game?.style}</span>
                                             </div>
                                             <div className="info">
                                                 <div className="release-date">
                                                     <span>发行日期：</span>
-                                                    <span>{data.date}</span>
+                                                    <span>{game.g_time}</span>
                                                 </div>
-                                                <div className="rating">
-                                                    <span>总体评价：</span>
-                                                    <span>{data.rating}</span>
-                                                </div>
+                                                {/* 学习排行榜怎么获取 rating 的 */}
+                                                {/* <div className="rating">
+                                                    <span>总体评价：</span> 
+                                                    <span>{game.rating}</span>
+                                                </div> */}
                                             </div>
                                         </div>
                                         <div className="ml-4">

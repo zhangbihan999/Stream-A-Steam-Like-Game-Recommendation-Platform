@@ -69,29 +69,9 @@ function GameDetail() {
     const [comments, setComments] = useState([]); // 评论列表状态
     const [isFavorite, setIsFavorite] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [collectionNumber, setCollectionNumber] = useState(0)
+    const [red,setRed] = useState('none')
     const router = useRouter();
-    const renderFavoriteButton = () => {
-        return (
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill={isFavorite || isHovered ? 'red' : 'none'}
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-6 cursor-pointer"
-                onClick={() => setIsFavorite(!isFavorite)}
-                onMouseOver={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                style={{ width: '24px', height: '24px' }}
-            >
-                <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
-                />
-            </svg>
-        );
-    };
 
     const handleThumbnailClick = (index: number) => {
         setCurrentThumbnailIndex(index);
@@ -110,7 +90,64 @@ function GameDetail() {
         setHoverRating(0);
     }, []);
 
-    
+    useEffect(() => {
+        if (isFavorite || isHovered) {
+            setRed('red')
+        } else {
+            setRed('none')
+        }
+    }, [isFavorite, isHovered])
+
+    const handleFavorite = async () => {
+        const newFavoriteStatus = !isFavorite;   // 先用一个变量把 isFavorite 存起来，别上来就 setIsFavorite(!isFavorite)，这个操作有延迟，可能向后续判断传输老数据
+        
+        // 如果 isFavorite === true
+        if (newFavoriteStatus) {
+            // 首先查询是否存在相应的记录
+            const { data: existing, error: queryError } = await supabase
+                .from("collections")
+                .select('*')
+                .eq('u_id', user.u_id)
+                .eq('g_id', game.g_id);
+            if (queryError) {
+                console.error('Error querying existing data:', queryError);
+                return;
+            } 
+            // 如果不存在记录则添加数据
+            if (existing && existing.length === 0) {
+                const { error: insertError } = await supabase
+                    .from('collections')
+                    .insert([{ u_id: user.u_id, g_id: game.g_id, index: (collectionNumber + 1)}]);
+                if (insertError) {
+                    console.error('Error inserting data:', insertError);
+                }
+                setIsFavorite(newFavoriteStatus);
+            }
+        } 
+        // 如果 isFavorite === False
+        else {
+            // 首先查询是否存在相应记录
+            const { data: existing, error: queryError } = await supabase
+                .from("collections")
+                .select('*')
+                .eq('u_id', user.u_id)
+                .eq('g_id', game.g_id);
+            if (queryError) {
+                console.error('Error querying existing data:', queryError);
+                return;
+            } 
+            // 如果存在则删除，不存在则不操作
+            if (existing && existing.length > 0) {
+                const { error } = await supabase
+                .from('collections')
+                .delete()
+                .eq('u_id', user.u_id)
+                .eq('g_id', game.g_id);
+            if (error) console.error('Error deleting data:', error);
+            }
+            setIsFavorite(newFavoriteStatus);
+        }
+    };
 
     const handleClick = useCallback(async (index: number) => {
         setCurrentRating(index);
@@ -246,12 +283,54 @@ function GameDetail() {
         }
     }, []);
 
+    const loadFavorite = useCallback(async () => {
+        // 首先查询是否存在相应的记录
+        const { data: existingData, error: queryError } = await supabase
+            .from('collections')
+            .select('*')
+            .eq('u_id', user?.u_id)
+            .eq('g_id', game?.g_id);
+    
+        if (queryError) {
+            console.error("Error querying data from Supabase", queryError);
+        }
+        
+        if (existingData && existingData.length > 0) {
+            setIsFavorite(true);
+            setRed('red')
+        } else {
+            setIsFavorite(false)
+        }
+    }, []);
+
+    // 从 collections 中获取与该 user 相关的收藏的数量
+    const loadCollectionCount = async () => {
+        try {
+            const { data, error, count } = await supabase
+                .from('collections')
+                .select('*', { count: 'exact' })
+                .eq('u_id', user.u_id)
+
+            if (error) {
+                console.error('Error loading collection count:', error);
+            } else {
+                setCollectionNumber(count);
+            }
+        } catch (error) {
+            console.error('Error fetching collection count:', error);
+        }
+    };
+
     useEffect(() => {
         // 页面加载时自动滚动到顶部
         window.scrollTo(0, 0);
         // 查看是否存在评分，如果存在则自动渲染
         loadCurrentRating();
-    }, [loadCurrentRating, router]); // 确保当 loadCurrentRating 函数或 router 变化时，重新执行 useEffect
+        // 查看是否收藏，如果存在则自动渲染
+        loadFavorite();
+        // 获取 collections 中的元组数量
+        loadCollectionCount()
+    }, [router]); 
 
     const thumbnails = [
         { src: game && game.img1, alt: '小图1', type: 'image' },
@@ -461,6 +540,7 @@ function GameDetail() {
                                 <span className="font-bold">定位标签：</span> {game?.style}
                             </div>
                             <div className="mt-4 flex items-center space-x-2">
+                                {/* 评分图标 */}
                                 <div className="flex space-x-1">
                                     <Stars
                                         hoverRating={hoverRating}
@@ -473,7 +553,25 @@ function GameDetail() {
                                 <div className="text-white">
                                      {hoverRating ? hoverRating.toFixed(1) : (currentRating ? currentRating.toFixed(1) : '0.0')}
                                 </div>
-                                {renderFavoriteButton()}
+                                {/* 收藏图标 */}
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill={red}
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="1.5"
+                                    stroke="currentColor"
+                                    className="size-6 cursor-pointer"
+                                    onClick={handleFavorite}
+                                    onMouseOver={() => setIsHovered(true)}
+                                    onMouseLeave={() => setIsHovered(false)}
+                                    style={{ width: '24px', height: '24px' }}
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
+                                    />
+                                </svg>
                             </div>
                         </div>
 
