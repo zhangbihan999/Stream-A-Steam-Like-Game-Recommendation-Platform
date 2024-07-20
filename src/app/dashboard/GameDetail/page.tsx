@@ -6,6 +6,7 @@ import useGameStore from "@/lib/useGameStore";
 import styled from '@emotion/styled';
 import { supabase } from "@/lib/api";
 import { useRouter } from 'next/navigation';
+import { update } from 'react-spring';
 
 const BackgroundDiv = styled.div`
     background-image: url('/fengmian2.jpg');
@@ -117,51 +118,121 @@ function GameDetail() {
     const handleFavorite = async () => {
         const newFavoriteStatus = !isFavorite;   // 先用一个变量把 isFavorite 存起来，别上来就 setIsFavorite(!isFavorite)，这个操作有延迟，可能向后续判断传输老数据
         
-        // 如果 isFavorite === true
+        // 如果 newFavoriteStatus === true
         if (newFavoriteStatus) {
             // 首先查询是否存在相应的记录
             const { data: existing, error: queryError } = await supabase
                 .from("collections")
-                .select('*')
+                .select('g_ids')
                 .eq('u_id', user.u_id)
-                .eq('g_id', game.g_id);
+
             if (queryError) {
                 console.error('Error querying existing data:', queryError);
                 return;
             } 
-            // 如果不存在记录则添加数据
-            if (existing && existing.length === 0) {
-                const { error: insertError } = await supabase
+            // 如果不存在该用户的 收藏 记录则为他创建
+            else if (existing && existing.length === 0){
+                const {error: updateError } = await supabase
                     .from('collections')
-                    .insert([{ u_id: user.u_id, g_id: game.g_id, index: (collectionNumber + 1)}]);
-                if (insertError) {
-                    console.error('Error inserting data:', insertError);
+                    .insert({ 'u_id': user.u_id, 'g_ids': game.g_id + "---"})
+                if (updateError) {
+                    console.error('Error updating data:', updateError);
+                } else {
+                    console.log('Data updated successfully');
                 }
-                setIsFavorite(newFavoriteStatus);
+                console.log("1 不存在用户收藏记录，已创建")
+                setIsFavorite(newFavoriteStatus)
+            } 
+            // 如果存在该用户的 收藏 记录则判断其中是否有当前的 game.g_id
+            else if (existing && existing.length > 0) {
+                const temp = existing[0].g_ids
+                // 如果用户的收藏为空则直接更新 g_ids
+                if (temp.length === 0){
+                    const {error: updateError} = await supabase
+                        .from('collections')
+                        .update({"g_ids": game.g_id + "---"})
+                        .eq('u_id', user.u_id)
+                    if (updateError) {
+                        console.error('Error updating data:', updateError);
+                    } else {
+                        console.log('Data updated successfully');
+                    }
+                    console.log("2 用户收藏从无到有")
+                    setIsFavorite(newFavoriteStatus)
+                } 
+                // 如果用户收藏不为空则首先判断是否存在该 g_id
+                else if (temp.length > 0) {
+                    const array = temp.split('---').filter(Boolean)      // 使用 Boolean 来过滤掉空字符串
+                    // 如果存在则不操作
+                    if (array.includes(String(game.g_id))) {
+                        return
+                    } 
+                    // 如果不存在则在 g_ids 后补充该 g_id
+                    else {
+                        const {error: updateError} = await supabase
+                        .from('collections')
+                        .update({"g_ids": temp + game.g_id + "---"})
+                        .eq('u_id', user.u_id)
+                        if (updateError) {
+                            console.error('Error updating data:', updateError);
+                        } else {
+                            console.log('Data updated successfully');
+                        }
+                        console.log("3 在已有的收藏记录后补充了新的")
+                        setIsFavorite(newFavoriteStatus)
+                    }
+                }
             }
         } 
-        // 如果 isFavorite === False
+        // 如果 newFavoriteStatus === False
         else {
-            // 首先查询是否存在相应记录
+            // 首先查询该用户的收藏记录是否存在
             const { data: existing, error: queryError } = await supabase
                 .from("collections")
-                .select('*')
+                .select('g_ids')
                 .eq('u_id', user.u_id)
-                .eq('g_id', game.g_id);
             if (queryError) {
                 console.error('Error querying existing data:', queryError);
                 return;
             } 
-            // 如果存在则删除，不存在则不操作
+
+            // 如果存在则判断收藏记录中是否包含该 g_id
             if (existing && existing.length > 0) {
-                const { error } = await supabase
-                .from('collections')
-                .delete()
-                .eq('u_id', user.u_id)
-                .eq('g_id', game.g_id);
-            if (error) console.error('Error deleting data:', error);
-            }
-            setIsFavorite(newFavoriteStatus);
+                const temp = existing[0].g_ids
+                // 如果用户的收藏为空则不操作
+                if (temp.length === 0){
+                    return
+                } 
+                // 如果收藏不为空则判断是否包含该 g_id
+                else if (temp.length > 0) {
+                    const array = temp.split('---').filter(Boolean)      // 使用 Boolean 来过滤掉空字符串
+                    console.log(array)
+                    // 如果存在则删除该 g_id
+                    if (array.includes(String(game.g_id))) {
+                        // 如果存在则删除该 g_id
+                        const index = array.indexOf(String(game.g_id));
+                        if (index !== -1) {
+                            array.splice(index, 1); // 从数组中删除位于 index 的元素
+                        }
+                        const { error: updateError } = await supabase
+                                .from('collections')
+                                .update({ "g_ids": array.join('---') + '---'})
+                                .eq('u_id', user.u_id);
+                            
+                            if (updateError) {
+                                console.error('Error updating data:', updateError);
+                            } else {
+                                console.log('Data updated successfully');
+                            }
+                        
+                        setIsFavorite(newFavoriteStatus);
+                        }
+                    } 
+                    // 如果不存在则不操作
+                    else {
+                        return
+                    }
+                }
         }
     };
 
@@ -300,22 +371,41 @@ function GameDetail() {
     }, []);
 
     const loadFavorite = useCallback(async () => {
-        // 首先查询是否存在相应的记录
-        const { data: existingData, error: queryError } = await supabase
+        // 首先查询是否存在该用户的收藏记录
+        const { data: existing, error: queryError } = await supabase
             .from('collections')
-            .select('*')
+            .select('g_ids')
             .eq('u_id', user?.u_id)
-            .eq('g_id', game?.g_id);
     
         if (queryError) {
             console.error("Error querying data from Supabase", queryError);
         }
-        
-        if (existingData && existingData.length > 0) {
-            setIsFavorite(true);
-            setRed('red')
-        } else {
+        // 如果不存在该用户的收藏记录则保持 isFavorite 为 false
+        else if (existing && existing.length === 0){
             setIsFavorite(false)
+        }
+        // 如果存在该用户的收藏记录则判断其中是否包含当前 g_id
+        else if (existing && existing.length > 0) {
+            const temp = existing[0].g_ids
+            // 如果用户收藏为空
+            if (temp.length === 0) {
+                setIsFavorite(false)
+                setRed('none')
+            }
+            // 如果用户收藏不为空则判断是否存在该 g_id
+            else if ( temp.length > 0) {
+                const array = temp.split('---').filter(Boolean)      // 使用 Boolean 来过滤掉空字符串
+                    // 如果存在
+                    if (array.includes(String(game.g_id))) {
+                        setIsFavorite(true)
+                        setRed('red')
+                    } 
+                    // 如果不存在
+                    else {
+                        setIsFavorite(false)
+                        setRed('none')
+                    }
+            }
         }
     }, []);
 
