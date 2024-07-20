@@ -514,7 +514,7 @@ function GameDetail() {
                                 <a href="/dashboard" className="hover:text-gray-400 text-white">商店</a>
                             </li>
                             <li>
-                                <a href="/favo" className="hover:text-gray-400 text-white">个人中心</a>
+                                <a href="/dashboard/favo" className="hover:text-gray-400 text-white">个人中心</a>
                             </li>
                             <li>
                                 <a href="/dashboard/LeaderBoard" className="hover:text-gray-400 text-white">排行榜</a>
