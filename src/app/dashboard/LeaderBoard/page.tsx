@@ -59,8 +59,8 @@ export default function Home() {
         }
 
         const { data: ratingsData, error: ratingsError } = await supabase
-            .from('ratings')
-            .select('g_id, rating');
+            .from('game')
+            .select('g_id, avg_rating');
 
         if (ratingsError) {
             console.error('Error fetching ratings:', ratingsError);
@@ -69,7 +69,7 @@ export default function Home() {
         }
 
         const mergedData = gamesData.map(game => {
-            const rating = ratingsData.find(r => r.g_id === game.g_id)?.rating || 0;
+            const rating = ratingsData.find(r => r.g_id === game.g_id)?.avg_rating || 0;
             return { ...game, rating, tags: game.style ? game.style.split('，') : [] }; // 分割标签
         });
 
@@ -219,7 +219,7 @@ export default function Home() {
                                             <span className="text-base font-normal">{new Date(game.g_time).toLocaleDateString()}</span>
                                         </div>
                                         <div className="w-1/6 text-right" style={{ marginRight: '1rem' }}> {/* 调整 marginRight */}
-                                            <span className="text-base font-normal">{game.rating}</span>
+                                            <span className="text-base font-normal">{game.avg_rating ? game.avg_rating : 0}</span>
                                         </div>
                                     </li>
                                 ))

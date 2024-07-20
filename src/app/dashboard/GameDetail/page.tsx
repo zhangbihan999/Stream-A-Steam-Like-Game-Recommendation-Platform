@@ -6,7 +6,6 @@ import useGameStore from "@/lib/useGameStore";
 import styled from '@emotion/styled';
 import { supabase } from "@/lib/api";
 import { useRouter } from 'next/navigation';
-import { update } from 'react-spring';
 
 const BackgroundDiv = styled.div`
     background-image: url('/fengmian2.jpg');
@@ -86,8 +85,10 @@ function GameDetail() {
     const [comments, setComments] = useState([]); // 评论列表状态
     const [isFavorite, setIsFavorite] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [collectionNumber, setCollectionNumber] = useState(0)
     const [red,setRed] = useState('none')
+    const [avg, setAvg] = useState(0.0)
+    const [reputation, setReputation] = useState('无')
+    const [totalNumber, setTotalNumber] = useState(0)
     const router = useRouter();
 
     const handleThumbnailClick = (index: number) => {
@@ -409,23 +410,53 @@ function GameDetail() {
         }
     }, []);
 
-    // 从 collections 中获取与该 user 相关的收藏的数量
-    const loadCollectionCount = async () => {
-        try {
-            const { data, error, count } = await supabase
-                .from('collections')
-                .select('*', { count: 'exact' })
-                .eq('u_id', user.u_id)
-
-            if (error) {
-                console.error('Error loading collection count:', error);
-            } else {
-                setCollectionNumber(count);
-            }
-        } catch (error) {
-            console.error('Error fetching collection count:', error);
+    const loadAvgRating = useCallback(async () => {
+        // 从 rating 中收集该游戏的所有评分
+        const {data: data, error: error} = await supabase
+            .from("ratings")
+            .select('rating')
+            .eq('g_id', game?.g_id)
+            
+        if (error) {
+            console.error('Error querying data from Supabase', error);
+            return;
         }
-    };
+
+        // 如果存在评分记录，则计算平均分数
+        if (data && data.length > 0) {
+            let totalSum = data.reduce((acc, curr) => acc + curr.rating, 0);
+            let average = totalSum / data.length;
+            average = parseFloat(average.toFixed(1))
+            setAvg(average);
+            /* console.log("平均评分已设置：" + avg) */
+            setTotalNumber(data.length)   // 记录评分的用户数量
+
+            if (average >= 8) {
+                setReputation("特别好评")
+            } else if (average >= 6 && average <8) {
+                setReputation("多半好评")
+            } else if (average >= 4 && average <6) {
+                setReputation("中规中矩")
+            } else if (average >= 2 && average <4) {
+                setReputation("多半差评")
+            } else if (average >= 0 && average <2) {
+                setReputation("特别差评")
+            }
+        }
+    }, [])
+
+    const updateAvgRating = useCallback(async () => {
+        console.log("平均评分已设置：" + avg)
+        const {error: error } = await supabase
+            .from("game")
+            .update({"avg_rating": avg})
+            .eq("g_id", game.g_id)
+        if (error) {
+            console.error('Error updating data:', error);
+        } else {
+            console.log('Data updated successfully');
+        }
+    },[avg])
 
     useEffect(() => {
         // 页面加载时自动滚动到顶部
@@ -434,9 +465,13 @@ function GameDetail() {
         loadCurrentRating();
         // 查看是否收藏，如果存在则自动渲染
         loadFavorite();
-        // 获取 collections 中的元组数量
-        loadCollectionCount()
+        // 计算平均评分
+        loadAvgRating()
     }, [router]); 
+
+    useEffect(() => {
+        updateAvgRating()
+    },[avg])
 
     const thumbnails = [
         { src: game && game.img1, alt: '小图1', type: 'image' },
@@ -588,7 +623,8 @@ function GameDetail() {
                                     
                                 />
                             )}
-                            <div className="absolute bottom left-0 right-0  bg-opacity-50 flex justify-center py-2 space-x-2">
+                        </div>
+                        <div className="bottom left-0 right-0  bg-opacity-50 flex justify-center py-2 space-x-2">
                                 {thumbnails.map((thumbnail, index) => (
                                     <div
                                         key={index}
@@ -604,10 +640,8 @@ function GameDetail() {
                                         )}
                                     </div>
                                 ))}
-                            </div>
                         </div>
 
-                        <div className='h-16'></div>  
                         {/* 评论输入栏 */}
                         <div className="mt-6 bg-gray-800 p-4 rounded-lg text-white">
                             <h3 className="text-xl font-bold mb-4">发表评论</h3>
@@ -643,10 +677,10 @@ function GameDetail() {
                                 <span className="font-bold">发行时间：</span> {game?.g_time}
                             </div>
                             <div className="mb-2">
-                                <span className="font-bold">用户评分：</span> 8.5
+                                <span className="font-bold">用户评分：</span> {avg}
                             </div>
                             <div className="mb-2">
-                                <span className="font-bold">总体评价：</span> 特别好评 (584)
+                                <span className="font-bold">总体评价：</span> {reputation} ({totalNumber})
                             </div>
                             <div className="mb-2">
                                 <span className="font-bold">定位标签：</span> {game?.style}
