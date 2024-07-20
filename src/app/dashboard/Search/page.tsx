@@ -8,19 +8,27 @@ import { supabase } from "@/lib/api";
 import { useRouter } from 'next/navigation'; // 从 next/navigation 导入 useRouter
 
 export default function Home() {
-    const { user, logout } = useUserStore();  /* 用户状态 */
+    const { user, setUser, logout } = useUserStore();  /* 用户状态 */
     const { setGame } = useGameStore();  /* 游戏状态 */
     const [rankingTitle, setRankingTitle] = useState("搜索结果");
     const [searchResults, setSearchResults] = useState([]); // 存储搜索结果
-    const [searchQuery, setSearchQuery] = useState(""); // 存储搜索查询
     const [isHydrated, setIsHydrated] = useState(false); // 确保客户端渲染完成
     const [loading, setLoading] = useState(false); // 搜索加载状态
     const [noResults, setNoResults] = useState(false); // 无搜索结果状态
     const router = useRouter(); // 使用 useRouter 钩子
 
     useEffect(() => {
-        setIsHydrated(true); // 标记客户端渲染完成
-    }, []);
+        // 确保组件在客户端渲染
+        setIsHydrated(true);
+        // 检查 localStorage 中是否有用户数据
+        const storedUserString = localStorage.getItem('user-storage');
+        if (storedUserString) {
+            const storedUser = JSON.parse(storedUserString);
+            if (storedUser && storedUser.state && storedUser.state.user) {
+                setUser(storedUser.state.user);
+            }
+        }
+    }, [setUser]);
 
     // 将 SVG 内容嵌入 styled-component
     const BackgroundDiv = styled.div`
@@ -47,16 +55,17 @@ export default function Home() {
         e.preventDefault();
         setLoading(true);
         setNoResults(false);
-        const query = searchQuery; // 从状态中获取值
+        const formData = new FormData(e.target);  // e.target 指向触发事件的元素
+        const { inputItem } = Object.fromEntries(formData)
         const { data: nameData, error: nameError } = await supabase
             .from('game')
             .select('*')
-            .ilike('g_name', `%${query}%`);
+            .ilike('g_name', `%${inputItem}%`);
 
         const { data: styleData, error: styleError } = await supabase
             .from('game')
             .select('*')
-            .ilike('style', `%${query}%`);
+            .ilike('style', `%${inputItem}%`);
 
         const { data: ratingData, error: ratingError } = await supabase
             .from('ratings')
@@ -80,9 +89,9 @@ export default function Home() {
         setNoResults(results.length === 0);
     };
 
-    const handleInputChange = useCallback((e) => {
+    /* const handleInputChange = useCallback((e) => {
         setSearchQuery(e.target.value);
-    }, []); // 空依赖数组意味着这个回调只会在组件挂载时创建一次
+    }, []); */ // 空依赖数组意味着这个回调只会在组件挂载时创建一次
 
     const handleGameClick = (game) => {
         return () => {
@@ -111,7 +120,7 @@ export default function Home() {
         <BackgroundDiv>
             <div className="text-x text-gray-900">
                 {/* 导航栏 */}
-                <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between">
+                <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between ">   {/* 导航栏 */}
                     <div className="text-white flex items-center space-x-4">
                         <div className='flex flex-row items-center pr-4'>
                             <a href="#">
@@ -119,6 +128,7 @@ export default function Home() {
                             </a>
                             <label htmlFor="#" className='text-2xl'>STREAM</label>
                         </div>
+
                         <ul className="flex items-center space-x-6">
                             <li>
                                 <a href="/dashboard" className="hover:text-gray-400 text-white">商店</a>
@@ -131,11 +141,12 @@ export default function Home() {
                             </li>
                         </ul>
                     </div>
+
                     <div className="flex flex-col justify-center space-y-2">
                         <label htmlFor="#" className="text-xl text-white px-2">{user?.name}</label>
-                        <a href="/login"
-                           className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline"
-                           onClick={() => logout()}>退出账户</a>
+                        <Link href="/login"
+                              className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline"
+                              onClick={() => logout()}>退出账户</Link>
                     </div>
                 </nav>
             </div>
@@ -165,8 +176,8 @@ export default function Home() {
                                     type="text"
                                     className="rounded bg-white-900 border border-gray-600 placeholder-gray-400 w-60 px-3 py-1"
                                     placeholder="搜索"
-                                    value={searchQuery}
-                                    onChange={handleInputChange}
+                                    name='inputItem'
+                                    /* onChange={handleInputChange} */
                                 />
                                 <button type="submit" className="absolute top-1/2 right-0 -translate-y-1/2 flex items-center px-2">
                                     <img src="/search.png" className='w-5' />

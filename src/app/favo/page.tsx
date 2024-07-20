@@ -214,38 +214,44 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
   // 从 Supabase 获取游戏数据
   const fetchGames = async () => {
     try {
-      // 查询 collections 表来找出所有当前用户的收藏
-      let { data: collections, error: collectionsError } = await supabase
-        .from('collections')
-        .select('g_id, index')
-        .eq('u_id', user.u_id);
-      
-      if (collectionsError) {
-        console.error('Error fetching collections:', collectionsError);
+      // 首先查询是否存在该用户的收藏记录
+      const { data: existing, error: queryError } = await supabase
+        .from("collections")
+        .select('g_ids')
+        .eq('u_id', user.u_id)
+
+      if (queryError) {
+        console.error('Error querying existing data:', queryError);
         return;
+      } 
+      // 如果不存在收藏记录则 return
+      else if (existing && existing.length === 0) {
+        return
       }
-
-      // 使用得到的 g_id 值去查询 game 表
-      const gameIds = collections.map(col => col.g_id);
-      if (gameIds.length > 0) {
-        let { data: gamesData, error: gamesError } = await supabase
-          .from('game')
-          .select('*')
-          .in('g_id', gameIds);
-        
-        if (gamesError) {
-          console.error('Error fetching games:', gamesError);
-          return;
+      // 如果存在则查看收藏是否为空
+      else if (existing && existing.length > 0) {
+        const temp = existing[0].g_ids
+        // 如果为空则 return
+        if (temp.length === 0) {
+          return
         }
-
-        // 合并游戏数据和 collections 的 index，并进行排序
-        const mergedData = gamesData.map(game => {
-          const collection = collections.find(col => col.g_id === game.g_id);
-          return { ...game, index: collection ? collection.index : null };
-        }).sort((a, b) => a.index - b.index); // 使用 sort 方法按 index 排序
-        
-        setGames(mergedData);
+        // 如果不为空则加载游戏
+        else if (temp.length > 0){
+          const array = temp.split('---').filter(Boolean)      // 使用 Boolean 来过滤掉空字符串
+          // 使用 Promise.all 等待所有游戏数据查询的完成。这确保了所有游戏数据都被获取之后再更新状态，而且按照 array 中出现的顺序。
+          const gamePromises = array.map(gameId =>
+            supabase
+              .from("game")
+              .select("*")
+              .eq("g_id", parseInt(gameId, 10))
+              .single() 
+          );
+          const gamesResults = await Promise.all(gamePromises);
+          const gamesData = gamesResults.map(result => result.data).filter(Boolean);   
+          setGames(gamesData); 
+        }
       }
+
     } catch (error) {
       console.error('Unexpected error:', error);
     }
