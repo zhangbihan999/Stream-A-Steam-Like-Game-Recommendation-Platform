@@ -25,6 +25,7 @@ const BackgroundDiv = styled.div`
   padding: 2rem;
   position: relative;
   margin: 0;
+  background-attachment: fixed;
 
   &::before {
     content: "";
@@ -122,7 +123,7 @@ const ImageButton = ({ imageUrl, onClick }) => {
       right: '0',
       cursor: 'ns-resize' // 确保鼠标悬停时显示为指针
     }}>
-      <img src="butt.png" alt="Image Button" style={{ width: '25px', height: '40px' }} />
+      <img src="/butt.png" alt="Image Button" style={{ width: '25px', height: '40px' }} />
     </button>
   );
 };
@@ -337,7 +338,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                             <a href="/dashboard" className="hover:text-gray-400 text-white">商店</a>
                         </li>
                         <li>
-                            <a href="/favo" className="hover:text-gray-400 text-white">个人中心</a>
+                            <a href="/dashboard/favo" className="hover:text-gray-400 text-white">个人中心</a>
                         </li>
                         <li>
                             <a href="/dashboard/LeaderBoard" className="hover:text-gray-400 text-white">排行榜</a>
