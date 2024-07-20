@@ -29,6 +29,23 @@ export default function Home() {
         justify-content: center;
     `;
 
+    const SearchContainer = styled.a`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white; /* 设置搜索文字的颜色为白色 */
+    // text-base;
+    line-height: 1.25;
+    background: rgba(192, 192, 192, 0.5); /* 灰色虚化背景，可以亮一点 */
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem; /* 圆角 */
+    transition: background 0.3s ease; /* 过渡效果 */
+    &:hover {
+        background: rgba(192, 192, 192, 0.8); /* 悬停时变亮 */
+    }
+`;
+
+
     const fetchGames = async (orderBy) => {
         setLoading(true);
         let { data: gamesData, error } = await supabase
@@ -133,24 +150,28 @@ export default function Home() {
                     <div className="flex items-center px-4 py-3 bg-gray-600 justify-between text-base font-normal">
                         <ul className="flex items-center space-x-6">
                             <li>
-                                <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-base leading-5'>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="white" className="size-5 w-6">
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" />
+                                <a href="#"
+                                   className='flex flex-row w-full hover:text-gray-400 text-white text-base leading-5'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         strokeWidth="1.5" stroke="white" className="size-5 w-6">
+                                        <path strokeLinecap="round" strokeLinejoin="round"
+                                              d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z"/>
                                     </svg>
                                     您的商店
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-base leading-5'>
+                                <a href="#"
+                                   className='flex flex-row w-full hover:text-gray-400 text-white text-base leading-5'>
                                     新鲜推荐
                                 </a>
                             </li>
                         </ul>
-                        <div className="relative">
-                            <input type="text" className="rounded bg-white-900 border border-gray-600 placeholder-gray-400 w-60 px-3 py-1" placeholder="搜索"/>
-                            <div className="absolute top-1/2 right-0 -translate-y-1/2 flex items-center px-2">
-                                <img src="/search.png" className='w-5 ' />
-                            </div>
+                        <div className="relative flex items-center">
+                            <SearchContainer href="/dashboard/Search">
+                                <span>搜索</span>
+                                <img src="/search.png" className="w-5 ml-2"/>
+                            </SearchContainer>
                         </div>
                     </div>
                 </div>

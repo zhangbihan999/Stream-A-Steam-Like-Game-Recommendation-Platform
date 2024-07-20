@@ -18,6 +18,22 @@ const BackgroundDiv = styled.div`
     justify-content: center;
 `;
 
+const SearchContainer = styled.a`
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        color: white; /* 设置搜索文字的颜色为白色 */
+        // text-base;
+        line-height: 1.25;
+        background: rgba(192, 192, 192, 0.5); /* 灰色虚化背景，可以亮一点 */
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem; /* 圆角 */
+        transition: background 0.3s ease; /* 过渡效果 */
+        &:hover {
+            background: rgba(192, 192, 192, 0.8); /* 悬停时变亮 */
+        }
+    `;
+
 type StarsProps = {
     hoverRating: number;
     currentRating: number;
@@ -427,22 +443,24 @@ function GameDetail() {
                     <div className="flex items-center px-4 py-3 bg-gray-600 justify-between text-white">
                         <ul className="flex items-center space-x-6">
                             <li>
-                                <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
+                                <a href="#"
+                                   className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
                                     您的商店
                                 </a>
                             </li>
                             <li>
-                                <a href="#" className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
+                                <a href="#"
+                                   className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
                                     新鲜推荐
                                 </a>
                             </li>
                         </ul>
 
-                        <div className="relative">
-                            <input type="text" className="rounded bg-white-900 border border-gray-600 placeholder-gray-400 w-60 px-3 py-1 text-gray-900" placeholder="搜索" />
-                            <div className="absolute top-1/2 right-0 -translate-y-1/2 flex items-center px-2">
-                                <img src="/search.png" className='w-5 ' alt="搜索图标" />
-                            </div>
+                        <div className="relative flex items-center">
+                            <SearchContainer href="/dashboard/Search">
+                                <span>搜索</span>
+                                <img src="/search.png" className="w-5 ml-2"/>
+                            </SearchContainer>
                         </div>
                     </div>
                 </div>

@@ -1,13 +1,26 @@
 "use client";
 import Link from 'next/link';
 import useUserStore from "@/lib/useUserStore";
+import useGameStore from "@/lib/useGameStore";
 import styled from '@emotion/styled';
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { supabase } from "@/lib/api";
+import { useRouter } from 'next/navigation'; // 从 next/navigation 导入 useRouter
 
 export default function Home() {
     const { user, logout } = useUserStore();  /* 用户状态 */
+    const { setGame } = useGameStore();  /* 游戏状态 */
     const [rankingTitle, setRankingTitle] = useState("搜索结果");
-    const [activeButton, setActiveButton] = useState("搜索结果");
+    const [searchResults, setSearchResults] = useState([]); // 存储搜索结果
+    const [searchQuery, setSearchQuery] = useState(""); // 存储搜索查询
+    const [isHydrated, setIsHydrated] = useState(false); // 确保客户端渲染完成
+    const [loading, setLoading] = useState(false); // 搜索加载状态
+    const [noResults, setNoResults] = useState(false); // 无搜索结果状态
+    const router = useRouter(); // 使用 useRouter 钩子
+
+    useEffect(() => {
+        setIsHydrated(true); // 标记客户端渲染完成
+    }, []);
 
     // 将 SVG 内容嵌入 styled-component
     const BackgroundDiv = styled.div`
@@ -21,16 +34,6 @@ export default function Home() {
         justify-content: center;
     `;
 
-    const games = [
-        { image: '/fengmian1.jpg', name: 'PUBG: BATTLEGROUNDS', releaseDate: '2024-07-09', rating: '9.0', tags: ['Action', 'Shooter'] },
-        { image: '/fengmian1.jpg', name: '永劫无间', releaseDate: '2024-07-02', rating: '8.5', tags: ['Action', 'Battle Royale'] },
-        { image: '/fengmian1.jpg', name: 'The First Descendant', releaseDate: '2024-06-25', rating: '8.0', tags: ['RPG', 'Shooter'] },
-        { image: '/fengmian1.jpg', name: '七日世界', releaseDate: '2024-07-09', rating: '9.5', tags: ['Adventure', 'Survival'] },
-        { image: '/fengmian1.jpg', name: '七日世界', releaseDate: '2024-07-09', rating: '9.5', tags: ['Adventure', 'Survival'] },
-        { image: '/fengmian1.jpg', name: '活侠传', releaseDate: '2024-07-02', rating: '7.5', tags: ['RPG', 'Martial Arts'] },
-        { image: '/fengmian1.jpg', name: '活侠传', releaseDate: '2024-07-02', rating: '7.5', tags: ['RPG', 'Martial Arts'] }
-    ];
-
     const recommendedGames = [
         { image: '/fengmian1.jpg', name: '推荐游戏1' },
         { image: '/fengmian1.jpg', name: '推荐游戏2' },
@@ -38,6 +41,71 @@ export default function Home() {
         { image: '/fengmian1.jpg', name: '推荐游戏4' },
         { image: '/fengmian1.jpg', name: '推荐游戏5' }
     ];
+
+    // 处理搜索输入并发送请求
+    const handleSearch = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setNoResults(false);
+        const query = searchQuery; // 从状态中获取值
+        const { data: nameData, error: nameError } = await supabase
+            .from('game')
+            .select('*')
+            .ilike('g_name', `%${query}%`);
+
+        const { data: styleData, error: styleError } = await supabase
+            .from('game')
+            .select('*')
+            .ilike('style', `%${query}%`);
+
+        const { data: ratingData, error: ratingError } = await supabase
+            .from('ratings')
+            .select('g_id, rating');
+
+        if (nameError || styleError || ratingError) {
+            console.error('Error fetching search results:', nameError, styleError, ratingError);
+            setLoading(false);
+            return;
+        }
+
+        const results = [...nameData, ...styleData]
+            .filter((game, index, self) => index === self.findIndex((g) => g.g_id === game.g_id))
+            .map((game) => {
+                const rating = ratingData.find(r => r.g_id === game.g_id)?.rating || 0;
+                return { ...game, rating };
+            });
+
+        setSearchResults(results);
+        setLoading(false);
+        setNoResults(results.length === 0);
+    };
+
+    const handleInputChange = useCallback((e) => {
+        setSearchQuery(e.target.value);
+    }, []); // 空依赖数组意味着这个回调只会在组件挂载时创建一次
+
+    const handleGameClick = (game) => {
+        return () => {
+            setLoading(true);
+            setGame(game); // 将点击的游戏设置为全局游戏状态
+            router.push('/dashboard/GameDetail'); // 使用 useRouter 进行导航，传递游戏 ID
+            console.log('被点击了:', game); // 输出更新后的游戏对象
+        };
+    };
+
+    if (!isHydrated) {
+        // 避免客户端和服务端渲染结果不一致的问题
+        return null;
+    }
+
+    const CenteredMessage = styled.div`
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        font-size: 1.5rem;
+        color: white;
+    `;
 
     return (
         <BackgroundDiv>
@@ -64,10 +132,10 @@ export default function Home() {
                         </ul>
                     </div>
                     <div className="flex flex-col justify-center space-y-2">
-                        <label htmlFor="#" className="text-xl text-white px-2">username</label>
+                        <label htmlFor="#" className="text-xl text-white px-2">{user?.name}</label>
                         <a href="/login"
-                              className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline"
-                              onClick={() => logout()}>退出账户</a>
+                           className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline"
+                           onClick={() => logout()}>退出账户</a>
                     </div>
                 </nav>
             </div>
@@ -92,16 +160,24 @@ export default function Home() {
                             </li>
                         </ul>
                         <div className="relative">
-                            <input type="text" className="rounded bg-white-900 border border-gray-600 placeholder-gray-400 w-60 px-3 py-1" placeholder="搜索"/>
-                            <div className="absolute top-1/2 right-0 -translate-y-1/2 flex items-center px-2">
-                                <img src="/search.png" className='w-5 ' />
-                            </div>
+                            <form onSubmit={handleSearch}>
+                                <input
+                                    type="text"
+                                    className="rounded bg-white-900 border border-gray-600 placeholder-gray-400 w-60 px-3 py-1"
+                                    placeholder="搜索"
+                                    value={searchQuery}
+                                    onChange={handleInputChange}
+                                />
+                                <button type="submit" className="absolute top-1/2 right-0 -translate-y-1/2 flex items-center px-2">
+                                    <img src="/search.png" className='w-5' />
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
                 {/* 推荐和搜索结果 */}
                 <div className="flex mt-10">
-                    <aside className="w-1/4 p-4 bg-gray-700 text-white h-full overflow-y-auto mr-6"> {/* 将左边宽度设置为 1/4 */}
+                    <aside className="w-1/4 p-4 bg-gray-700 text-white h-full overflow-y-auto mr-6">
                         <h2 className="text-xl font-bold mb-4">你可能感兴趣：</h2>
                         <ul>
                             {recommendedGames.map((game, index) => (
@@ -114,7 +190,7 @@ export default function Home() {
                             ))}
                         </ul>
                     </aside>
-                    <main className="w-3/4 p-4 bg-gray-800 bg-opacity-80 text-white"> {/* 将右边宽度设置为 3/4 */}
+                    <main className="w-3/4 p-4 bg-gray-800 bg-opacity-80 text-white">
                         <div className="flex justify-between mb-4 px-4 items-center text-base font-normal">
                             <h2 className="text-xl flex-1">{rankingTitle}</h2>
                             <div className="w-1/6 text-right" style={{marginRight: '-2rem'}}>
@@ -124,29 +200,36 @@ export default function Home() {
                                 <span>评分</span>
                             </div>
                         </div>
-                        <ul>
-                            {games.map((game, index) => (
-                                <li key={index}
-                                    className="flex py-2 px-4 bg-gray-700 bg-opacity-80 rounded mb-2 hover:bg-gray-600 hover:bg-opacity-80 transition duration-300 cursor-pointer">
-                                    <img src={game.image} alt={game.name} className="w-32 h-18 object-cover mr-4"/>
-                                    <div className="flex-1 flex flex-col justify-center">
-                                        <span className="text-xl font-bold mb-1">{game.name}</span>
-                                        <div className="flex flex-wrap">
-                                            {game.tags.map((tag, tagIndex) => (
-                                                <span key={tagIndex}
-                                                      className="text-sm text-gray-400 bg-gray-900 bg-opacity-50 rounded px-2 py-1 mr-2 mt-1">{tag}</span>
-                                            ))}
+                        {loading ? (
+                            <CenteredMessage>搜索中......</CenteredMessage>
+                        ) : noResults ? (
+                            <CenteredMessage>无搜索结果</CenteredMessage>
+                        ) : (
+                            <ul>
+                                {searchResults.map((game, index) => (
+                                    <li key={index}
+                                        className="flex py-2 px-4 bg-gray-700 bg-opacity-80 rounded mb-2 hover:bg-gray-600 hover:bg-opacity-80 transition duration-300 cursor-pointer"
+                                        onClick={handleGameClick(game)}> {/* 添加 onClick 事件 */}
+                                        <img src={game.face_img} alt={game.g_name} className="w-40 h-20 object-cover mr-4"/> {/* 固定图片大小为长方形 */}
+                                        <div className="flex-1 flex flex-col justify-center">
+                                            <span className="text-xl font-bold mb-1">{game.g_name}</span>
+                                            <div className="flex flex-wrap">
+                                                {game.style && game.style.split('，').map((tag, tagIndex) => (
+                                                    <span key={tagIndex}
+                                                          className="text-sm text-gray-400 bg-gray-900 bg-opacity-50 rounded px-2 py-1 mr-2 mt-1">{tag}</span>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div className="w-1/6 text-center flex items-center justify-center" style={{ marginRight: '-1rem' }}>
-                                        <span>{game.releaseDate}</span>
-                                    </div>
-                                    <div className="w-1/6 text-right flex items-center justify-center" style={{ marginRight: '-3rem' }}>
-                                        <span>{game.rating}</span>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
+                                        <div className="w-1/6 text-center flex items-center justify-center" style={{ marginRight: '-1rem' }}>
+                                            <span>{new Date(game.g_time).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="w-1/6 text-right flex items-center justify-center" style={{ marginRight: '-3rem' }}>
+                                            <span>{game.rating}</span>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </main>
                 </div>
             </div>
