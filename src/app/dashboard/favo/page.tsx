@@ -413,7 +413,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                 {games.map((game, index) => (
                     <DraggableContainer key={game.g_id} id={game.g_id} index={index} moveContainer={moveContainer}>
                         <CenteredContainer>
-                            <FormContainer onClick={handleClickForm(game)}>
+                            <FormContainer onClick={handleClickForm(game)} className='hover:cursor-pointer'>
                                 <FlexContainer>
                                     <div className="flex flex-col md:flex-row items-center">
                                         <div className="mr-2">

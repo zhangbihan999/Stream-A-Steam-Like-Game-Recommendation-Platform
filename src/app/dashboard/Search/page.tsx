@@ -68,8 +68,8 @@ export default function Home() {
             .ilike('style', `%${inputItem}%`);
 
         const { data: ratingData, error: ratingError } = await supabase
-            .from('ratings')
-            .select('g_id, rating');
+            .from('game')
+            .select('g_id, avg_rating');
 
         if (nameError || styleError || ratingError) {
             console.error('Error fetching search results:', nameError, styleError, ratingError);
@@ -80,7 +80,7 @@ export default function Home() {
         const results = [...nameData, ...styleData]
             .filter((game, index, self) => index === self.findIndex((g) => g.g_id === game.g_id))
             .map((game) => {
-                const rating = ratingData.find(r => r.g_id === game.g_id)?.rating || 0;
+                const rating = ratingData.find(r => r.g_id === game.g_id)?.avg_rating || 0;
                 return { ...game, rating };
             });
 
