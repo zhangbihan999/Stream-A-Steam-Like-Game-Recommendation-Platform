@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, CSSProperties, useRef} from 'react';
+import React, { useState, useEffect, CSSProperties, useRef } from 'react';
 import useUserStore from "@/lib/useUserStore";
 import useGameStore from "@/lib/useGameStore";
 import { supabase } from "@/lib/api";
@@ -9,10 +9,8 @@ import { useRouter } from 'next/navigation'
 import styled from '@emotion/styled';
 import Image from 'next/image';
 import Carousel from '@/components/carousel/Carousel';
-import { link } from 'fs';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-
 
 // 背景
 const BackgroundDiv = styled.div`
@@ -147,7 +145,6 @@ interface CustomElementProps {
   imageUrl: string;
   buttonStyleUrl: string;
 }
-
 
 // 标号
 const Label = ({ text, style }) => {
@@ -290,7 +287,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
     setShowPassword(!showPassword);
   }
 
-  const moveContainer = (dragIndex, hoverIndex) => {
+  const moveContainer = async (dragIndex, hoverIndex) => {
     // 克隆当前游戏数组来避免直接修改状态
     const newGamesArray = [...games];
     // 从数组中移除被拖动的项目
@@ -299,7 +296,23 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
     newGamesArray.splice(hoverIndex, 0, removed);
     // 更新游戏状态
     setGames(newGamesArray);
-};
+
+    // 更新数据库中的顺序
+    const newOrder = newGamesArray.map(game => game.g_id).join('---');  //read：g_id -> list -> str -->> db updating
+
+    try {
+      const { data, error } = await supabase
+        .from('collections')
+        .update({ g_ids: newOrder + '---'})
+        .eq('u_id', user.u_id);
+
+      if (error) {
+        console.error('Error updating order:', error);
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+    }
+  };
 
   if (!isHydrated) {
     // 避免客户端和服务端渲染结果不一致的问题
@@ -371,9 +384,9 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
         </div>
 
 
-        <div className="container mx-auto my-10 flex-1 flex flex-row rounded items-start justify-between w-full">
+        <div className="container mx-auto my-10 flex-1 flex flex-row rounded items-start justify-between w-full" style={{ marginTop: '-20px' }}>
             {/* 个人信息部分 */}
-            <aside className="w-full md:w-1/5 p-4 bg-gray-700 text-white overflow-y-auto mr-3">
+            <aside className="w-full md:w-1/5 p-4 bg-gray-700 text-white overflow-y-auto mr-3" style={{ position: 'sticky', top: 25}}>
                 <h2 className="text-3xl font-bold mb-6">用户信息</h2>
                 <div className="mb-6">
                     <label className="block text-gray-400 text-sm font-bold mb-2">用户ID:</label>
@@ -421,11 +434,6 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                                                     <span>发行日期：</span>
                                                     <span>{game.g_time}</span>
                                                 </div>
-                                                {/* 学习排行榜怎么获取 rating 的 */}
-                                                {/* <div className="rating">
-                                                    <span>总体评价：</span> 
-                                                    <span>{game.rating}</span>
-                                                </div> */}
                                             </div>
                                         </div>
                                         <div className="ml-4">
