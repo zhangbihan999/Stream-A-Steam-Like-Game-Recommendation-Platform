@@ -500,11 +500,15 @@ function GameDetail() {
         <BackgroundDiv>
             <div className="text-x text-gray-900">
                 {/* 导航栏 */}
-                <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between">
+                <nav className="flex items-center px-4 py-5 bg-gray-900 justify-between ">   {/* 导航栏 */}
                     <div className="text-white flex items-center space-x-4">
-                        <a href="#">
-                        <img src="/game new.svg" width="80" height="35" alt="Steam 主页链接"/>
-                        </a>
+                        <div className='flex flex-row items-center pr-4'>
+                            <a href="#">
+                                <img src="/game new.svg" width="80" height="35" alt="Steam 主页链接"/>
+                            </a>
+                            <label htmlFor="#" className='text-2xl'>STREAM</label>
+                        </div>
+
                         <ul className="flex items-center space-x-6">
                             <li>
                                 <a href="/dashboard" className="hover:text-gray-400 text-white">商店</a>
@@ -520,9 +524,9 @@ function GameDetail() {
 
                     <div className="flex flex-col justify-center space-y-2">
                         <label htmlFor="#" className="text-xl text-white px-2">{user?.name}</label>
-                        <a href="/login"
+                        <Link href="/login"
                               className="upgrade-btn active-nav-link text-white text-sm px-2 hover:text-blue-500 hover:underline"
-                              onClick={() => logout()}>退出账户</a>
+                              onClick={() => logout()}>退出账户</Link>
                     </div>
                 </nav>
             </div>
