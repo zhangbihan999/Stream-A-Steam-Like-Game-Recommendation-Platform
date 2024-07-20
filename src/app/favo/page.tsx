@@ -12,7 +12,7 @@ import Carousel from '@/components/carousel/Carousel';
 import { link } from 'fs';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useSpring, animated } from 'react-spring';
+
 
 // 背景
 const BackgroundDiv = styled.div`
@@ -211,6 +211,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
   };
   const [isHydrated, setIsHydrated] = useState(false); // 用于确保客户端渲染和服务端渲染一致
   const [games, setGames] = useState([]); // 存储游戏数据
+  const router = useRouter();
   // 从 Supabase 获取游戏数据
   const fetchGames = async () => {
     try {
@@ -256,6 +257,15 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
       console.error('Unexpected error:', error);
     }
   };
+
+  const handleClickForm = (game) => {
+    return () => {
+        setTimeout(() => {
+            setGame(game); // 更新游戏状态
+            router.push('/dashboard/GameDetail'); // 跳转到详细页面
+        }, 300); // 给予300毫秒的延迟确保加载覆盖层显示
+    };
+};
 
   useEffect(() => {
     fetchGames()
@@ -389,7 +399,7 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                 {games.map((game, index) => (
                     <DraggableContainer key={game.g_id} id={game.g_id} index={index} moveContainer={moveContainer}>
                         <CenteredContainer>
-                            <FormContainer href="/login">
+                            <FormContainer onClick={handleClickForm(game)}>
                                 <FlexContainer>
                                     <div className="flex flex-col md:flex-row items-center">
                                         <div className="mr-2">
