@@ -19,7 +19,6 @@ const BackgroundDiv = styled.div`
     align-items: center;
 `;
 
-
 const ChatContainer = styled.div`
     background: rgba(16, 24, 39, 0.9);
     border-radius: 10px;
@@ -119,7 +118,6 @@ const Navbar = styled.nav`
     color: white;
 `;
 
-
 const ContentContainer = styled.div`
     margin-top: -3%; /* 为内容增加顶部边距，确保不被导航栏遮挡 */
     width: 100%;
@@ -127,8 +125,6 @@ const ContentContainer = styled.div`
     flex-direction: column;
     align-items: center;
 `;
-
-
 
 export default function Home() {
     const { user, setUser, logout } = useUserStore();
@@ -165,7 +161,9 @@ export default function Home() {
         }
     };
 
-    const handleSendMessage = () => {
+   
+
+    const handleSendMessage = async () => {
         if (input.trim()) {
             const newMessage = {
                 text: input,
@@ -173,6 +171,24 @@ export default function Home() {
             };
             setMessages([...messages, newMessage]);
             setInput('');
+            try {
+                const response = await fetch('src/lib/api/run-script.js', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ userInput: input }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const content = data.stdout.output.choices[0].content;
+                    setMessages(prevMessages => [...prevMessages, { text: content, isUser: false }]);
+                } else {
+                    console.error('Failed to execute script:', data.error);
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+            }
         }
     };
 
@@ -272,4 +288,3 @@ export default function Home() {
         </BackgroundDiv>
     );
 }
-
