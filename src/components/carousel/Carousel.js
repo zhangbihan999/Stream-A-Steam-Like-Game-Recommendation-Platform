@@ -99,7 +99,7 @@ export default function Carousel() {
                 <img
                   src={game.face_img}
                   layout="fill"
-                  objectFit="contain"
+                  objectfit="contain"
                   className="animate-fadeIn hover:cursor-pointer w-full h-full"
                   onClick={handleClick(game)}
                   alt={`Game ${index}`}
