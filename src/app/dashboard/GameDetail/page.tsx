@@ -270,14 +270,32 @@ function GameDetail() {
         }
     };
 
+    /* const handleGameClick = (game) => {
+        return () => {
+            setLoading(true);
+            setTimeout(() => {
+                setGame(game); // 更新游戏状态
+                router.push('/dashboard/GameDetail'); // 跳转到详细页面
+            }, 300); // 给予300毫秒的延迟确保加载覆盖层显示
+        };
+    }; */
+
     const handleGameClick = (game) => {
         return () => {
             setLoading(true);
-            setGame(game); // 将点击的游戏设置为全局游戏状态
-            router.push('/dashboard/GameDetail'); // 使用 useRouter 进行导航，传递游戏 ID
-            console.log('被点击了:', game); // 输出更新后的游戏对象
+            setGame(game); // 设置游戏状态
+            // 不再这里进行跳转
         };
     };
+    
+    // 使用 useEffect 来处理页面跳转
+    useEffect(() => {
+        if (game) { // 确保 game 不为空
+            setTimeout(() => {
+                router.push('/dashboard/GameDetail'); // 在游戏状态更新后进行跳转
+            }, 300); // 使用300毫秒延迟确保加载动画可以显示
+        }
+    }, [game]); // 依赖数组确保仅在 game 更新时才触发
 
     const handleClick = useCallback(async (index: number) => {
         setCurrentRating(index);
@@ -431,7 +449,7 @@ function GameDetail() {
             // 如果没有找到评分记录，可以选择设置一个默认评分或清除当前评分
             setCurrentRating(0); // 或者设置默认值，如 setCurrentRating(0);
         }
-    }, []);
+    }, [game?.g_id]);
 
     const loadFavorite = useCallback(async () => {
         // 首先查询是否存在该用户的收藏记录
@@ -470,7 +488,7 @@ function GameDetail() {
                 }
             }
         }
-    }, []);
+    }, [game?.g_id]);
 
     const loadAvgRating = useCallback(async () => {
         // 从 rating 中收集该游戏的所有评分
@@ -504,7 +522,7 @@ function GameDetail() {
                 setReputation("特别差评")
             }
         }
-    }, [])
+    }, [game?.g_id])
 
     const updateAvgRating = useCallback(async () => {
         const {error: error } = await supabase
@@ -525,7 +543,7 @@ function GameDetail() {
             console.error('Error updating data:', error);
         }
         setComments(data)
-    }, [comments])
+    }, [game?.g_id])
 
     const loadRecommendedGames = useCallback(async () => {
         const { data: gameData, error: gameError } = await supabase
@@ -571,17 +589,36 @@ function GameDetail() {
     useEffect(() => {
         // 页面加载时自动滚动到顶部
         window.scrollTo(0, 0);
-        // 查看是否存在评分，如果存在则自动渲染
-        loadCurrentRating();
-        // 查看是否收藏，如果存在则自动渲染
-        loadFavorite();
-        // 计算平均评分
-        loadAvgRating()
-        // 自动加载评论
-        loadComments()
-        // 加载推荐游戏
-        loadRecommendedGames();
-    }, [router]); 
+    
+        // 清除之前可能加载的游戏详情数据
+        clearGameData();
+    
+        // 加载当前游戏的相关数据
+        if (game?.g_id) {
+            // 先设置为一个临时值，以确保重新渲染
+            setCurrentThumbnailIndex(-1); 
+            loadCurrentRating();
+            loadFavorite();
+            loadAvgRating();
+            loadComments();
+            loadRecommendedGames();
+            // 重置当前展示的缩略图索引和主展示图
+            setCurrentThumbnailIndex(0);
+            setMainImage(game?.img1 || '');
+
+            setVideoPlay(false)
+            setVideoEnded(true)
+        }
+    }, [game?.g_id]); // 依赖于游戏 ID 的变化
+
+    // 清除游戏详情数据的函数
+    const clearGameData = () => {
+        setComments([]);
+        setAvg(0);
+        setReputation('无');
+        setCurrentRating(0);
+        setTotalNumber(0);
+    };
 
     useEffect(() => {
         updateAvgRating();
@@ -771,7 +808,7 @@ function GameDetail() {
                             <div className="mt-12">
                                 <h3 className="text-xl font-bold mb-4">评论</h3>
                                 <ul className="text-gray-300">
-                                    {comments.map((comment, index) => (
+                                    {comments?.map((comment, index) => (
                                         <li key={index} className="mb-4 bg-gray-600 bg-opacity-75 p-4 rounded-lg  transition-all">
                                             <div className="flex justify-between items-center">
                                                 <span className="font-semibold">{comment.u_name}：</span>
