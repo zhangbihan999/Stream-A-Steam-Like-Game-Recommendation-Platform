@@ -158,7 +158,7 @@ export default function Home() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyDown = (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             handleSendMessage();
@@ -262,7 +262,7 @@ export default function Home() {
                             type="text"
                             value={input}
                             onChange={handleInputChange}
-                            onKeyPress={handleKeyPress}  // 添加 onKeyPress 事件监听
+                            onKeyDown={handleKeyDown}  // 添加 onKeyDown 事件监听
                             placeholder="请输入内容....."
                         />
                         <SendButton onClick={handleSendMessage}>Send</SendButton>
