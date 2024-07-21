@@ -6,6 +6,7 @@ import styled from '@emotion/styled';
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/lib/api";
 import { useRouter } from 'next/navigation'; // 从 next/navigation 导入 useRouter
+import { fetchGeneratedText } from '../../api/chat/route'; // 路径根据实际项目结构调整
 
 const BackgroundDiv = styled.div`
     background-image: url('/fengmian2.jpg');
@@ -154,6 +155,13 @@ export default function Home() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
+
     const handleSendMessage = async () => {
         if (input.trim()) {
             const newMessage = {
@@ -163,22 +171,13 @@ export default function Home() {
             setMessages([...messages, newMessage]);
             setInput('');
             try {
-                const response = await fetch('src/lib/api/run-script.js', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ userInput: input }),
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    const content = data.stdout.output.choices[0].content;
-                    setMessages(prevMessages => [...prevMessages, { text: content, isUser: false }]);
-                } else {
-                    console.error('Failed to execute script:', data.error);
-                }
+                const generatedText = await fetchGeneratedText(input);  // 获取 AI 模型的回答
+                setMessages(prevMessages => [
+                    ...prevMessages,
+                    { text: generatedText, isUser: false }  // 显示 AI 的回答
+                ]);
             } catch (error) {
-                console.error('Network error:', error);
+                console.error('Failed to get response from AI model:', error);
             }
         }
     };
@@ -269,6 +268,7 @@ export default function Home() {
                             type="text"
                             value={input}
                             onChange={handleInputChange}
+                            onKeyDown={handleKeyDown}  // 添加 onKeyDown 事件监听
                             placeholder="请输入内容....."
                         />
                         <SendButton onClick={handleSendMessage}>Send</SendButton>

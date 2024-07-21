@@ -287,6 +287,13 @@ function GameDetail() {
             // 不再这里进行跳转
         };
     };
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // 阻止默认行为，避免换行
+            handleCommentSubmit(e); // 调用评论提交的函数
+        }
+    };
     
     // 使用 useEffect 来处理页面跳转
     useEffect(() => {
@@ -802,6 +809,7 @@ function GameDetail() {
                                     placeholder="写下你的评论..."
                                     value={comment}
                                     onChange={handleCommentChange}
+                                    onKeyDown={handleKeyDown} // 添加 onKeyDown 事件处理器
                                 ></textarea>
                                 <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600" onClick={test}>发布</button>
                             </form>
