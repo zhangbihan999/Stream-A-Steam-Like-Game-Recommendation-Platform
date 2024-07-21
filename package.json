@@ -9,12 +9,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/mistral": "^0.0.22",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.44.4",
     "@svgr/webpack": "^8.1.0",
     "@types/hoist-non-react-statics": "^3.3.5",
+    "ai": "^3.2.32",
     "classnames": "^2.5.1",
     "hoist-non-react-statics": "^3.3.2",
     "lodash": "^4.17.21",
