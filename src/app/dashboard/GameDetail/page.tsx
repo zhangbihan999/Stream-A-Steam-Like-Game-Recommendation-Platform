@@ -7,6 +7,7 @@ import styled from '@emotion/styled';
 import { supabase } from "@/lib/api";
 import { useRouter } from 'next/navigation';
 
+
 const BackgroundDiv = styled.div`
     background-image: url('/fengmian2.jpg');
     background-size: cover;
@@ -19,20 +20,61 @@ const BackgroundDiv = styled.div`
 `;
 
 const SearchContainer = styled.a`
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        color: white; /* 设置搜索文字的颜色为白色 */
-        // text-base;
-        line-height: 1.25;
-        background: rgba(192, 192, 192, 0.5); /* 灰色虚化背景，可以亮一点 */
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.375rem; /* 圆角 */
-        transition: background 0.3s ease; /* 过渡效果 */
-        &:hover {
-            background: rgba(192, 192, 192, 0.8); /* 悬停时变亮 */
-        }
-    `;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    color: white; /* 设置搜索文字的颜色为白色 */
+    line-height: 1.25;
+    background: rgba(192, 192, 192, 0.5); /* 灰色虚化背景，可以亮一点 */
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem; /* 圆角 */
+    transition: background 0.3s ease; /* 过渡效果 */
+    &:hover {
+        background: rgba(192, 192, 192, 0.8); /* 悬停时变亮 */
+    }
+`;
+
+const CarouselImage = styled.img`
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+`;
+
+const RecommendedImage = styled.img`
+    width: 150px;  /* 设置图片的固定宽度 */
+    height: 70px; /* 设置图片的固定高度 */
+    object-fit: cover;
+    border-radius: 8px; /* 可选：添加圆角效果 */
+`;
+
+const StyledRecommendedGame = styled.div`
+    position: relative;
+    cursor: pointer;
+
+    &:hover::before {
+        content: "";
+        position: absolute;
+        top: -5px; /* 向上扩展5px */
+        left: -10px; /* 向左扩展5px */
+        width: calc(100% + 10px); /* 增加背景的宽度 */
+        height: calc(100% + 10px); /* 增加背景的高度 */
+        background: rgba(183, 183, 183, 0.5);
+        z-index: 0;
+        border-radius: 8px;
+    }
+
+    img {
+        position: relative;
+        z-index: 1;
+    }
+
+    span {
+        position: relative;
+        z-index: 2; /* 确保文字在前景 */
+        color: #fff; /* 悬停时文字颜色 */
+    }
+`;
+
 
 type StarsProps = {
     hoverRating: number;
@@ -75,7 +117,7 @@ function GameDetail() {
     const [currentThumbnailIndex, setCurrentThumbnailIndex] = useState(0)
     const [currentMedia, setCurrentMedia] = useState({src: null, type: null});
     const [currentRating, setCurrentRating] = useState(0); // 当前评分
-    const [hoverRating, setHoverRating] = useState(0); // 鼠标悬停评分  
+    const [hoverRating, setHoverRating] = useState(0); // 鼠标悬停评分
     const [isModalOpen, setIsModalOpen] = useState(false); // 控制放大查看图像的状态
     const [isPaused, setIsPaused] = useState(false); // 控制轮播图的暂停状态
     const [pauseDueToHover, setPauseDueToHover] = useState(false);   // 是否因为鼠标悬停而暂停轮播
@@ -89,7 +131,10 @@ function GameDetail() {
     const [avg, setAvg] = useState(0.0)
     const [reputation, setReputation] = useState('无')
     const [totalNumber, setTotalNumber] = useState(0)
+    const [recommendedGames, setRecommendedGames] = useState([]); // 推荐游戏状态
     const router = useRouter();
+    const [loading, setLoading] = useState(false); // 搜索加载状态
+
 
     const handleThumbnailClick = (index: number) => {
         setCurrentThumbnailIndex(index);
@@ -118,7 +163,7 @@ function GameDetail() {
 
     const handleFavorite = async () => {
         const newFavoriteStatus = !isFavorite;   // 先用一个变量把 isFavorite 存起来，别上来就 setIsFavorite(!isFavorite)，这个操作有延迟，可能向后续判断传输老数据
-        
+
         // 如果 newFavoriteStatus === true
         if (newFavoriteStatus) {
             // 首先查询是否存在相应的记录
@@ -130,7 +175,7 @@ function GameDetail() {
             if (queryError) {
                 console.error('Error querying existing data:', queryError);
                 return;
-            } 
+            }
             // 如果不存在该用户的 收藏 记录则为他创建
             else if (existing && existing.length === 0){
                 const {error: updateError } = await supabase
@@ -138,12 +183,9 @@ function GameDetail() {
                     .insert({ 'u_id': user.u_id, 'g_ids': game.g_id + "---"})
                 if (updateError) {
                     console.error('Error updating data:', updateError);
-                } else {
-                    console.log('Data updated successfully');
                 }
-                console.log("1 不存在用户收藏记录，已创建")
                 setIsFavorite(newFavoriteStatus)
-            } 
+            }
             // 如果存在该用户的 收藏 记录则判断其中是否有当前的 game.g_id
             else if (existing && existing.length > 0) {
                 const temp = existing[0].g_ids
@@ -155,36 +197,30 @@ function GameDetail() {
                         .eq('u_id', user.u_id)
                     if (updateError) {
                         console.error('Error updating data:', updateError);
-                    } else {
-                        console.log('Data updated successfully');
-                    }
-                    console.log("2 用户收藏从无到有")
+                    } 
                     setIsFavorite(newFavoriteStatus)
-                } 
+                }
                 // 如果用户收藏不为空则首先判断是否存在该 g_id
                 else if (temp.length > 0) {
                     const array = temp.split('---').filter(Boolean)      // 使用 Boolean 来过滤掉空字符串
                     // 如果存在则不操作
                     if (array.includes(String(game.g_id))) {
                         return
-                    } 
+                    }
                     // 如果不存在则在 g_ids 后补充该 g_id
                     else {
                         const {error: updateError} = await supabase
-                        .from('collections')
-                        .update({"g_ids": temp + game.g_id + "---"})
-                        .eq('u_id', user.u_id)
+                            .from('collections')
+                            .update({"g_ids": temp + game.g_id + "---"})
+                            .eq('u_id', user.u_id)
                         if (updateError) {
                             console.error('Error updating data:', updateError);
-                        } else {
-                            console.log('Data updated successfully');
-                        }
-                        console.log("3 在已有的收藏记录后补充了新的")
+                        } 
                         setIsFavorite(newFavoriteStatus)
                     }
                 }
             }
-        } 
+        }
         // 如果 newFavoriteStatus === False
         else {
             // 首先查询该用户的收藏记录是否存在
@@ -195,7 +231,7 @@ function GameDetail() {
             if (queryError) {
                 console.error('Error querying existing data:', queryError);
                 return;
-            } 
+            }
 
             // 如果存在则判断收藏记录中是否包含该 g_id
             if (existing && existing.length > 0) {
@@ -203,7 +239,7 @@ function GameDetail() {
                 // 如果用户的收藏为空则不操作
                 if (temp.length === 0){
                     return
-                } 
+                }
                 // 如果收藏不为空则判断是否包含该 g_id
                 else if (temp.length > 0) {
                     const array = temp.split('---').filter(Boolean)      // 使用 Boolean 来过滤掉空字符串
@@ -222,50 +258,56 @@ function GameDetail() {
                             
                             if (updateError) {
                                 console.error('Error updating data:', updateError);
-                            } else {
-                                console.log('Data updated successfully');
-                            }
-                        
+                            } 
                         setIsFavorite(newFavoriteStatus);
-                        }
-                    } 
-                    // 如果不存在则不操作
-                    else {
-                        return
                     }
                 }
+                // 如果不存在则不操作
+                else {
+                    return
+                }
+            }
         }
+    };
+
+    const handleGameClick = (game) => {
+        return () => {
+            setLoading(true);
+            setGame(game); // 将点击的游戏设置为全局游戏状态
+            router.push('/dashboard/GameDetail'); // 使用 useRouter 进行导航，传递游戏 ID
+            console.log('被点击了:', game); // 输出更新后的游戏对象
+        };
     };
 
     const handleClick = useCallback(async (index: number) => {
         setCurrentRating(index);
         console.log(user.u_id, user.name, user.password);
-    
+
         // 首先查询是否存在相应的评分记录
         const { data: existingData, error: queryError } = await supabase
             .from('ratings')
             .select('*')
             .eq('u_id', user.u_id)
             .eq('g_id', game.g_id);
-    
+
         if (queryError) {
             console.error('Error querying data from Supabase', queryError);
             return;
         }
-    
+
         // 如果存在记录，先删除
         if (existingData && existingData.length > 0) {
             const { error: deleteError } = await supabase
                 .from('ratings')
                 .delete()
                 .match({ u_id: user.u_id, g_id: game.g_id });
-    
+
             if (deleteError) {
                 console.error('Error deleting existing rating', deleteError);
                 return;
             }
         }
-    
+
         // 插入新的评分记录
         const { data, error } = await supabase
             .from('ratings')
@@ -276,7 +318,7 @@ function GameDetail() {
                     rating: index
                 }
             ]);
-    
+
         if (error) {
             console.error('Error inserting data into Supabase', error);
         } else {
@@ -306,34 +348,54 @@ function GameDetail() {
 
     // 视频播放开始
     const handleVideoPlay = () => {
-       setVideoPlay(true)
-       setVideoEnded(false)
+        setVideoPlay(true)
+        setVideoEnded(false)
     };
 
     // 视频播放结束
     const handleVideoEnded = () => {
-       setVideoEnded(true)
-       setVideoPlay(false)
+        setVideoEnded(true)
+        setVideoPlay(false)
     };
 
     const handleCommentChange = useCallback((e) => {
         setComment(e.target.value);
     }, []); // 空依赖数组意味着这个回调只会在组件挂载时创建一次
 
-    const handleCommentSubmit = useCallback((e) => {
+    const handleCommentSubmit = useCallback(async (e) => {
         e.preventDefault();
         if (comment.trim() !== '') {
-            setComments(prevComments => [...prevComments, comment]); // 使用函数形式的更新，确保不会受到闭包的影响
-            setComment(''); // 清空评论输入框
+            const currentTime = new Date();
+            const localTime = currentTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+            const date = new Date(localTime)
+            const simplified_time = date.toLocaleDateString('zh-CN', {year: 'numeric', month: 'long', day: 'numeric'})
+
+            // 尝试写入数据库
+            const { error } = await supabase
+                .from("comments")
+                .insert({
+                    "u_id": user.u_id,
+                    "g_id": game.g_id,
+                    "u_name": user.name,
+                    "comment": comment,
+                    "time": localTime,
+                    "simplified_time": simplified_time
+                });
+
+            if (!error) {
+                // 如果没有错误，更新评论列表
+                setComments(prevComments => [...prevComments, {
+                    comment: comment,
+                    time: localTime,
+                    simplified_time: simplified_time,
+                    u_name: user.name
+                }]);
+                setComment(''); // 清空输入框
+            } else {
+                console.log("Error writing comment to DB", error);
+            }
         }
     }, [comment]);
-
-    const recommendedGames = [
-        { title: '推荐游戏1', image: '/fengmian1.jpg' },
-        { title: '推荐游戏2', image: '/fengmian2.jpg' },
-        { title: '推荐游戏3', image: '/fengmian1.jpg' },
-        { title: '推荐游戏4', image: '/fengmian2.jpg' }
-    ];
 
     useEffect(() => {
         // 确保组件在客户端渲染
@@ -356,12 +418,12 @@ function GameDetail() {
             .select('*')
             .eq('u_id', user?.u_id)
             .eq('g_id', game?.g_id);
-    
+
         if (queryError) {
             console.error('Error querying data from Supabase', queryError);
             return;
         }
-    
+
         // 如果存在记录，设置当前评分
         if (existingData.length > 0) {
             setCurrentRating(existingData[0].rating); // 假设每个用户和游戏组合只有一个评分记录
@@ -377,7 +439,7 @@ function GameDetail() {
             .from('collections')
             .select('g_ids')
             .eq('u_id', user?.u_id)
-    
+
         if (queryError) {
             console.error("Error querying data from Supabase", queryError);
         }
@@ -396,16 +458,16 @@ function GameDetail() {
             // 如果用户收藏不为空则判断是否存在该 g_id
             else if ( temp.length > 0) {
                 const array = temp.split('---').filter(Boolean)      // 使用 Boolean 来过滤掉空字符串
-                    // 如果存在
-                    if (array.includes(String(game.g_id))) {
-                        setIsFavorite(true)
-                        setRed('red')
-                    } 
-                    // 如果不存在
-                    else {
-                        setIsFavorite(false)
-                        setRed('none')
-                    }
+                // 如果存在
+                if (array.includes(String(game.g_id))) {
+                    setIsFavorite(true)
+                    setRed('red')
+                }
+                // 如果不存在
+                else {
+                    setIsFavorite(false)
+                    setRed('none')
+                }
             }
         }
     }, []);
@@ -416,7 +478,7 @@ function GameDetail() {
             .from("ratings")
             .select('rating')
             .eq('g_id', game?.g_id)
-            
+
         if (error) {
             console.error('Error querying data from Supabase', error);
             return;
@@ -428,7 +490,6 @@ function GameDetail() {
             let average = totalSum / data.length;
             average = parseFloat(average.toFixed(1))
             setAvg(average);
-            /* console.log("平均评分已设置：" + avg) */
             setTotalNumber(data.length)   // 记录评分的用户数量
 
             if (average >= 8) {
@@ -446,17 +507,66 @@ function GameDetail() {
     }, [])
 
     const updateAvgRating = useCallback(async () => {
-        console.log("平均评分已设置：" + avg)
         const {error: error } = await supabase
             .from("game")
             .update({"avg_rating": avg})
             .eq("g_id", game.g_id)
         if (error) {
             console.error('Error updating data:', error);
-        } else {
-            console.log('Data updated successfully');
         }
     },[avg])
+
+    const loadComments = useCallback(async () => {
+        const {data: data, error: error} = await supabase
+            .from("comments")
+            .select("*")
+            .eq("g_id", game.g_id)
+        if (error) {
+            console.error('Error updating data:', error);
+        }
+        setComments(data)
+    }, [comments])
+
+    const loadRecommendedGames = useCallback(async () => {
+        const { data: gameData, error: gameError } = await supabase
+            .from("game")
+            .select("*")
+            .eq("g_id", game.g_id);
+
+        if (gameError) {
+            console.error("Error querying game data:", gameError);
+            return;
+        }
+
+        if (gameData.length > 0) {
+            const currentGameStyles = gameData[0].style.split(",").map(style => style.trim());
+            const { data: allGames, error: allGamesError } = await supabase
+                .from("game")
+                .select("*");
+
+            if (allGamesError) {
+                console.error("Error querying all games data:", allGamesError);
+                return;
+            }
+
+            const recommended = allGames
+                .filter(g => g.g_id !== game.g_id) // 排除当前游戏
+                .map(g => {
+                    const styles = g.style.split(",").map(style => style.trim());
+                    const matchCount = styles.filter(style => currentGameStyles.includes(style)).length;
+                    return { ...g, matchCount };
+                })
+                .sort((a, b) => {
+                    if (a.matchCount === b.matchCount) {
+                        return b.avg_rating - a.avg_rating; // 匹配度相同时，按评分排序
+                    }
+                    return b.matchCount - a.matchCount; // 按匹配度排序
+                })
+                .slice(0, 5); // 取前五个
+
+            setRecommendedGames(recommended);
+        }
+    }, [game?.g_id]);
 
     useEffect(() => {
         // 页面加载时自动滚动到顶部
@@ -467,11 +577,15 @@ function GameDetail() {
         loadFavorite();
         // 计算平均评分
         loadAvgRating()
+        // 自动加载评论
+        loadComments()
+        // 加载推荐游戏
+        loadRecommendedGames();
     }, [router]); 
 
     useEffect(() => {
-        updateAvgRating()
-    },[avg])
+        updateAvgRating();
+    }, [avg]);
 
     const thumbnails = [
         { src: game && game.img1, alt: '小图1', type: 'image' },
@@ -501,11 +615,11 @@ function GameDetail() {
             setVideoPlay(false)
             setVideoEnded(true)
         }
-    }, [currentThumbnailIndex]); 
-    
+    }, [currentThumbnailIndex]);
+
     useEffect(() => {
         // 在这里处理暂停逻辑
-        if (videoPlay) {    
+        if (videoPlay) {
             setIsPaused(true); // 当视频播放时停止轮播
         } else if (pauseDueToHover) {
             setIsPaused(true); // 鼠标悬停时停止轮播
@@ -529,7 +643,7 @@ function GameDetail() {
 
     const test = (() => {
         console.log("我被点了")
-    })    
+    })
 
     return (
         <BackgroundDiv>
@@ -602,8 +716,8 @@ function GameDetail() {
                     <div className="w-2/3 flex flex-col">
                         {/* 左侧大框和小框 */}
                         <div className="relative border border-gray-600 w-full" style={{height: '500px'}}
-                            onMouseEnter={handleMouseEnterMainImage}
-                            onMouseLeave={handleMouseLeaveMainImage}
+                             onMouseEnter={handleMouseEnterMainImage}
+                             onMouseLeave={handleMouseLeaveMainImage}
                         >
                             {currentMedia.type === 'video' ? (
                                 <video
@@ -615,31 +729,30 @@ function GameDetail() {
                                     style={{height: '500px'}}
                                 />
                             ) : (
-                                <img
+                                <CarouselImage
                                     src={currentMedia.src}
                                     alt="主展示图"
                                     className="w-full object-cover cursor-pointer" style={{height: '500px'}}
                                     onClick={handleImageClick}
-                                    
                                 />
                             )}
                         </div>
                         <div className="bottom left-0 right-0  bg-opacity-50 flex justify-center py-2 space-x-2">
-                                {thumbnails.map((thumbnail, index) => (
-                                    <div
-                                        key={index}
-                                        className={`w-16 h-16 border border-gray-600 cursor-pointer ${index === currentThumbnailIndex ? 'border-yellow-400' : ''}`}
-                                        onClick={() => handleThumbnailClick(index)}
-                                    >
-                                        {thumbnail.type === 'video' ? (
-                                            <video src={thumbnail.src} className="w-full h-full">
-                                                Your browser does not support the video tag.
-                                            </video>
-                                        ) : (
-                                            <img src={thumbnail.src} alt={thumbnail.alt} className="w-full h-full object-cover" />
-                                        )}
-                                    </div>
-                                ))}
+                            {thumbnails.map((thumbnail, index) => (
+                                <div
+                                    key={index}
+                                    className={`w-16 h-16 border border-gray-600 cursor-pointer ${index === currentThumbnailIndex ? 'border-yellow-400' : ''}`}
+                                    onClick={() => handleThumbnailClick(index)}
+                                >
+                                    {thumbnail.type === 'video' ? (
+                                        <video src={thumbnail.src} className="w-full h-full">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    ) : (
+                                        <CarouselImage src={thumbnail.src} alt={thumbnail.alt} />
+                                    )}
+                                </div>
+                            ))}
                         </div>
 
                         {/* 评论输入栏 */}
@@ -659,11 +772,15 @@ function GameDetail() {
                                 <h3 className="text-xl font-bold mb-4">评论</h3>
                                 <ul className="text-gray-300">
                                     {comments.map((comment, index) => (
-                                        <li key={index} className="mb-2">
-                                            {comment}
+                                        <li key={index} className="mb-4 bg-gray-600 bg-opacity-75 p-4 rounded-lg  transition-all">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-semibold">{comment.u_name}：</span>
+                                                <span className="text-xs text-gray-400">{comment.simplified_time}</span>
+                                            </div>
+                                            <p className="mt-1 text-gray-200 text-sm">{comment.comment}</p>
                                         </li>
                                     ))}
-                                </ul>
+                            </ul>
                             </div>
                         </div>
                     </div>
@@ -697,7 +814,7 @@ function GameDetail() {
                                     />
                                 </div>
                                 <div className="text-white">
-                                     {hoverRating ? hoverRating.toFixed(1) : (currentRating ? currentRating.toFixed(1) : '0.0')}
+                                    {hoverRating ? hoverRating.toFixed(1) : (currentRating ? currentRating.toFixed(1) : '0.0')}
                                 </div>
                                 {/* 收藏图标 */}
                                 <svg
@@ -725,14 +842,20 @@ function GameDetail() {
                         <div className="mt-14">
                             <h3 className="text-xl font-bold mb-4">你可能还喜欢：</h3>
                             <div className="space-y-4">
-                                {recommendedGames.map((game, index) => (
-                                    <div key={index} className="flex items-center space-x-4">
-                                        <img src={game.image} alt={game.title} className="w-16 h-16 object-cover"/>
-                                        <span>{game.title}</span>
-                                    </div>
+                                {recommendedGames.map((recommendedGame, index) => (
+                                    <StyledRecommendedGame
+                                        key={index}
+                                        className="flex items-center space-x-4"
+                                        onClick={handleGameClick(recommendedGame)}
+                                    >
+                                        <RecommendedImage src={recommendedGame.face_img} alt={recommendedGame.g_name} className="w-16 h-16 object-cover"/>
+                                        <span>{recommendedGame.g_name}</span>
+                                    </StyledRecommendedGame>
                                 ))}
                             </div>
                         </div>
+
+
                     </div>
                 </div>
             </div>
@@ -740,7 +863,7 @@ function GameDetail() {
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75" onClick={handleCloseModal}>
                     <div className="relative" style={{ width: '80%', height: '80%' }}>
-                        <img src={mainImage} alt="放大展示图" className="w-full h-full" onClick={(e) => e.stopPropagation()} />
+                        <CarouselImage src={mainImage} alt="放大展示图" className="w-full h-full" onClick={(e) => e.stopPropagation()} />
                     </div>
                 </div>
             )}
