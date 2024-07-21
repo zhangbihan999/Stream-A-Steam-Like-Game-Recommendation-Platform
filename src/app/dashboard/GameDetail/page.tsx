@@ -138,10 +138,7 @@ function GameDetail() {
                     .insert({ 'u_id': user.u_id, 'g_ids': game.g_id + "---"})
                 if (updateError) {
                     console.error('Error updating data:', updateError);
-                } else {
-                    console.log('Data updated successfully');
                 }
-                console.log("1 不存在用户收藏记录，已创建")
                 setIsFavorite(newFavoriteStatus)
             } 
             // 如果存在该用户的 收藏 记录则判断其中是否有当前的 game.g_id
@@ -155,10 +152,7 @@ function GameDetail() {
                         .eq('u_id', user.u_id)
                     if (updateError) {
                         console.error('Error updating data:', updateError);
-                    } else {
-                        console.log('Data updated successfully');
-                    }
-                    console.log("2 用户收藏从无到有")
+                    } 
                     setIsFavorite(newFavoriteStatus)
                 } 
                 // 如果用户收藏不为空则首先判断是否存在该 g_id
@@ -176,10 +170,7 @@ function GameDetail() {
                         .eq('u_id', user.u_id)
                         if (updateError) {
                             console.error('Error updating data:', updateError);
-                        } else {
-                            console.log('Data updated successfully');
-                        }
-                        console.log("3 在已有的收藏记录后补充了新的")
+                        } 
                         setIsFavorite(newFavoriteStatus)
                     }
                 }
@@ -222,10 +213,7 @@ function GameDetail() {
                             
                             if (updateError) {
                                 console.error('Error updating data:', updateError);
-                            } else {
-                                console.log('Data updated successfully');
-                            }
-                        
+                            } 
                         setIsFavorite(newFavoriteStatus);
                         }
                     } 
@@ -320,11 +308,38 @@ function GameDetail() {
         setComment(e.target.value);
     }, []); // 空依赖数组意味着这个回调只会在组件挂载时创建一次
 
-    const handleCommentSubmit = useCallback((e) => {
+    const handleCommentSubmit = useCallback(async (e) => {
         e.preventDefault();
         if (comment.trim() !== '') {
-            setComments(prevComments => [...prevComments, comment]); // 使用函数形式的更新，确保不会受到闭包的影响
-            setComment(''); // 清空评论输入框
+            const currentTime = new Date();
+            const localTime = currentTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+            const date = new Date(localTime)
+            const simplified_time = date.toLocaleDateString('zh-CN', {year: 'numeric', month: 'long', day: 'numeric'})
+
+            // 尝试写入数据库
+            const { error } = await supabase
+                .from("comments")
+                .insert({
+                    "u_id": user.u_id,
+                    "g_id": game.g_id,
+                    "u_name": user.name,
+                    "comment": comment,
+                    "time": localTime,
+                    "simplified_time": simplified_time
+                });
+
+            if (!error) {
+                // 如果没有错误，更新评论列表
+                setComments(prevComments => [...prevComments, {
+                    comment: comment,
+                    time: localTime,
+                    simplified_time: simplified_time,
+                    u_name: user.name
+                }]);
+                setComment(''); // 清空输入框
+            } else {
+                console.log("Error writing comment to DB", error);
+            }
         }
     }, [comment]);
 
@@ -446,17 +461,25 @@ function GameDetail() {
     }, [])
 
     const updateAvgRating = useCallback(async () => {
-        console.log("平均评分已设置：" + avg)
         const {error: error } = await supabase
             .from("game")
             .update({"avg_rating": avg})
             .eq("g_id", game.g_id)
         if (error) {
             console.error('Error updating data:', error);
-        } else {
-            console.log('Data updated successfully');
         }
     },[avg])
+
+    const loadComments = useCallback(async () => {
+        const {data: data, error: error} = await supabase
+            .from("comments")
+            .select("*")
+            .eq("g_id", game.g_id)
+        if (error) {
+            console.error('Error updating data:', error);
+        }
+        setComments(data)
+    }, [comments])
 
     useEffect(() => {
         // 页面加载时自动滚动到顶部
@@ -467,6 +490,8 @@ function GameDetail() {
         loadFavorite();
         // 计算平均评分
         loadAvgRating()
+        // 自动加载评论
+        loadComments()
     }, [router]); 
 
     useEffect(() => {
@@ -659,11 +684,15 @@ function GameDetail() {
                                 <h3 className="text-xl font-bold mb-4">评论</h3>
                                 <ul className="text-gray-300">
                                     {comments.map((comment, index) => (
-                                        <li key={index} className="mb-2">
-                                            {comment}
+                                        <li key={index} className="mb-4 bg-gray-600 bg-opacity-75 p-4 rounded-lg  transition-all">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-semibold">{comment.u_name}：</span>
+                                                <span className="text-xs text-gray-400">{comment.simplified_time}</span>
+                                            </div>
+                                            <p className="mt-1 text-gray-200 text-sm">{comment.comment}</p>
                                         </li>
                                     ))}
-                                </ul>
+                            </ul>
                             </div>
                         </div>
                     </div>

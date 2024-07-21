@@ -187,20 +187,7 @@ export default function Home() {
                     </div>
                 </div>
                 {/* 推荐和搜索结果 */}
-                <div className="flex mt-10">
-                    <aside className="w-1/4 p-4 bg-gray-700 text-white h-full overflow-y-auto mr-6">
-                        <h2 className="text-xl font-bold mb-4">你可能感兴趣：</h2>
-                        <ul>
-                            {recommendedGames.map((game, index) => (
-                                <li key={index} className="mb-4 cursor-pointer hover:bg-gray-600 hover:bg-opacity-80 transition duration-300 p-2 rounded">
-                                    <div className="flex items-center">
-                                        <img src={game.image} alt={game.name} className="w-28 h-16 object-cover mr-4"/> {/* 调整图片大小 */}
-                                        <span className="text-base font-normal">{game.name}</span>
-                                    </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </aside>
+                <div className="flex mt-10 items-center justify-center">
                     <main className="w-3/4 p-4 bg-gray-800 bg-opacity-80 text-white">
                         <div className="flex justify-between mb-4 px-4 items-center text-base font-normal">
                             <h2 className="text-xl flex-1">{rankingTitle}</h2>
