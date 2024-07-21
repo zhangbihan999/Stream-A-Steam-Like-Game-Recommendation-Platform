@@ -4,7 +4,7 @@ import dashscope
 
 def call_with_messages():
     messages = [{'role': 'system', 'content': 'You are a helpful assistant.'},
-                {'role': 'user', 'content': '请介绍一下通义千问'}]
+                {'role': 'user', 'content': '请介绍一下四川大学'}]
 
     response = dashscope.Generation.call(
         dashscope.Generation.Models.qwen_turbo,
