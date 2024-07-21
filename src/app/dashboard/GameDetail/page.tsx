@@ -730,15 +730,11 @@ function GameDetail() {
                     <div className="flex items-center px-4 py-3 bg-gray-600 justify-between text-white">
                         <ul className="flex items-center space-x-6">
                             <li>
-                                <a href="#"
-                                   className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                                    您的商店
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#"
-                                   className='flex flex-row w-full hover:text-gray-400 text-white text-sm leading-5'>
-                                    新鲜推荐
+                                <a href="/dashboard/StreamAI"
+                                   className='flex items-center w-full hover:text-gray-400 text-white text-base leading-5'>
+                                    <img src="/aislogo.png" width="40" height="40" alt="Steam 主页链接"
+                                         className="mr-2"/>
+                                    <span>STREAM AI</span>
                                 </a>
                             </li>
                         </ul>
