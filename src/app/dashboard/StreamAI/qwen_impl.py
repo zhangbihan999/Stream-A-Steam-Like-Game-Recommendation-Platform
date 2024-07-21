@@ -1,3 +1,5 @@
+import sys
+import json
 from http import HTTPStatus
 import dashscope
 
@@ -21,4 +23,8 @@ def call_with_messages():
 
 
 if __name__ == '__main__':
-    call_with_messages()
+    if len(sys.argv) > 1:
+        messages = json.loads(sys.argv[1])
+        call_with_messages(messages)
+    else:
+        call_with_messages()
