@@ -158,6 +158,13 @@ export default function Home() {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+        }
+    };
+
     const handleSendMessage = () => {
         if (input.trim()) {
             const newMessage = {
@@ -255,6 +262,7 @@ export default function Home() {
                             type="text"
                             value={input}
                             onChange={handleInputChange}
+                            onKeyPress={handleKeyPress}  // 添加 onKeyPress 事件监听
                             placeholder="请输入内容....."
                         />
                         <SendButton onClick={handleSendMessage}>Send</SendButton>
