@@ -7,6 +7,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from "@/lib/api";
 import { useRouter } from 'next/navigation'; // 从 next/navigation 导入 useRouter
 
+
 export default function Home() {
     const { user, setUser, logout } = useUserStore();  /* 用户状态 */
     const { setGame } = useGameStore();  /* 游戏状态 */
