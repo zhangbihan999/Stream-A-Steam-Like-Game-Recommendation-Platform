@@ -1,75 +1,21 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+### Getting Start
 
-### Getting Started
+### 启动后端服务器
 
-#### npm
+如果你想体验 StreamAI 服务，请首先运行`src/app/api/RAG/RAG.py`文件以启动后端服务器。
 
-First, run the development server:
+这一步需要提供您的 api key，我们使用的模型是 Mistral，如果您使用其他模型，记得修改从 llamaindex 引入的库的名称。
 
-```
-npm run dev
-```
+> 例如：您如果使用 OpenAI，则将`from llama_index.llms.mistralai import MistralAI`修改为`from llama_index.llms.openai import OpenAI`，然后设置 api key。
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 启动前端服务器
 
-If the system say that you haven’t install ‘next’ yet, then run the following command to install:
+运行`npm run dev`，然后进入`http://localhost:3000`查看界面。
+
+如果系统报错：`you haven’t install ‘next’ yet`, 则运行下面这行命令：
 
 ```
 npm install next react react-dom
 ```
 
-Then run:
-
-```
-npm run dev
-```
-
-You can start editing the page by modifying `src/app/page.tsx`. The page auto-updates as you edit the file.
-
-#### tailwindcss
-
-```
-# 安装 tailwIndcss
-npm install -D tailwindcss postcss autoprefixer
-# 初始化 tialwindcss。完成这一步之后，文件列表将出现一个`tailwind.config.js`文件
-npx tailwindcss init -p
-```
-
-将`tailwind.config.js`修改如下：
-
-```
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: [
-    "./src/**/*.{js,ts,jsx,tsx}"
-  ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-}
-```
-
-将`src/app/globals.css`修改如下：
-
-```
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-```
-
-打开`src/app/page.tsx`，将内容修改如下，这里，我们在 classname 中通过使用 tailwindcss 提供的组件便能够直接操控 css 样式.
-
-```
-export default function Home() {
-  return <div className="text-red-500">hello world</div>
-}
-```
-
-运行`npm run dev`，进入本地的3000端口，如果页面正确展现了红色的 hello world，即设置成功。
-
-自定义排序需要新的支持：
-```
-npm install react-beautiful-dnd
-npm install react-router-dom
-```
+再执行`npm run dev`。
