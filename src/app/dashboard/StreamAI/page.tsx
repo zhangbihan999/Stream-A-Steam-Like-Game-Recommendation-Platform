@@ -6,7 +6,8 @@ import styled from '@emotion/styled';
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/lib/api";
 import { useRouter } from 'next/navigation'; // 从 next/navigation 导入 useRouter
-import { fetchGeneratedText } from '../../api/chat/route'; // 路径根据实际项目结构调整
+import { fetchGeneratedText } from '../../api/vercelAISDK/route'; 
+import axios from 'axios'; // 导入 axios
 
 const BackgroundDiv = styled.div`
     background-image: url('/fengmian2.jpg');
@@ -170,8 +171,10 @@ export default function Home() {
             };
             setMessages([...messages, newMessage]);
             setInput('');
+
             try {
-                const generatedText = await fetchGeneratedText(input);  // 获取 AI 模型的回答
+                const response = await axios.post('http://localhost:5000/query', { input });
+                const generatedText = response.data;
                 setMessages(prevMessages => [
                     ...prevMessages,
                     { text: generatedText, isUser: false }  // 显示 AI 的回答

@@ -270,16 +270,6 @@ function GameDetail() {
         }
     };
 
-    /* const handleGameClick = (game) => {
-        return () => {
-            setLoading(true);
-            setTimeout(() => {
-                setGame(game); // 更新游戏状态
-                router.push('/dashboard/GameDetail'); // 跳转到详细页面
-            }, 300); // 给予300毫秒的延迟确保加载覆盖层显示
-        };
-    }; */
-
     const handleGameClick = (game) => {
         return () => {
             setLoading(true);
