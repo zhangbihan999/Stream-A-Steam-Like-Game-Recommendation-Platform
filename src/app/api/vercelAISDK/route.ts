@@ -4,7 +4,7 @@ import { generateText } from 'ai';
 
 // 初始化并配置 Mistral 实例
 const mistralInstance = createMistral({
-    apiKey: process.env.MISTRAL_API_KEY
+    apiKey: "0U3FzEA0ut3pQj16wt4PjdH6BBfZIFXZ"
 })
 
 const basePrompt = "你是 Stream 游戏推荐系统的管理员小爱，负责回答用户提出的问题。除非用户指明，你默认使用中文回答所有问题。"
