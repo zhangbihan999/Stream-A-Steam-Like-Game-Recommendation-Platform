@@ -173,8 +173,9 @@ export default function Home() {
             setInput('');
 
             try {
-                /* const response = await axios.post('http://localhost:5000/query', { input }); */
-                const generatedText = await fetchGeneratedText(input);  
+                const response = await axios.post('http://localhost:5000/query', { input });
+                const generatedText = response.data;
+                /* const generatedText = await fetchGeneratedText(input);   */
                 setMessages(prevMessages => [
                     ...prevMessages,
                     { text: generatedText, isUser: false }  // 显示 AI 的回答
