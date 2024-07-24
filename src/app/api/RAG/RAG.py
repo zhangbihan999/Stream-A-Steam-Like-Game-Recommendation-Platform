@@ -9,7 +9,7 @@ from gevent import pywsgi
 import os
 
 # 从环境变量中读取 API 密钥（首先在 python 终端中执行：set MISTRAL_API_KEY=your_api_key）
-api_key = os.environ.get("MISTRAL_API_KEY")
+""" api_key = os.environ.get("MISTRAL_API_KEY") """
 
 app = Flask(__name__)
 CORS(app)  # 允许所有域名访问
