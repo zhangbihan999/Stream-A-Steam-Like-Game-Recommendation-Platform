@@ -210,7 +210,7 @@ export default function Home() {
                                             <span className="text-base font-normal">{new Date(game.g_time).toLocaleDateString()}</span>
                                         </div>
                                         <div className="w-1/6 text-right" style={{ marginRight: '1rem' }}> {/* 调整 marginRight */}
-                                        <span className="text-base font-normal" style={{color: 'rgb(233, 234, 49)'}}>{game.avg_rating ? game.avg_rating : 0}</span>
+                                            <span className="text-base font-normal">{game.avg_rating ? game.avg_rating : 0}</span>
                                         </div>
                                     </li>
                                 ))
