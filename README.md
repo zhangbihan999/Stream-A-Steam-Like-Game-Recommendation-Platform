@@ -5,7 +5,7 @@
     &#128568; <a href="https://www.youtube.com/watch?v=IxnQsugQXB4">Demo Video</a> • 
   </p>
 </div>
-![](/readme_show.png)
+![alt text](https://asdfdasgasd.oss-cn-chengdu.aliyuncs.com/typora_pictures/202408202322813.png)
 
 <br/>
 
