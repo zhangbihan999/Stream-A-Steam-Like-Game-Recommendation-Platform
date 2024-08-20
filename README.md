@@ -5,7 +5,7 @@
     &#128568; <a href="https://www.youtube.com/watch?v=IxnQsugQXB4">Demo Video</a> • 
   </p>
 </div>
-![alt text](https://asdfdasgasd.oss-cn-chengdu.aliyuncs.com/typora_pictures/202408202322813.png)
+![alt text]([https://asdfdasgasd.oss-cn-chengdu.aliyuncs.com/typora_pictures/202408202322813.png](https://github.com/zhangbihan999/Stream-A-Steam-Like-Game-Recommendation-Platform/blob/zc/public/readme_show.png))
 
 <br/>
 
