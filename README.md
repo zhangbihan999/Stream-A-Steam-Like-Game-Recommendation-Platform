@@ -33,7 +33,7 @@ Actually, there are many other modules need to be downloaded before you can run 
 
 ## Code Structure (Only src)
 
-- `app`/
+- `app/`
 
 	- `dashboard/`
 		- `favo/page.tsx`: The content of page “个人中心”
