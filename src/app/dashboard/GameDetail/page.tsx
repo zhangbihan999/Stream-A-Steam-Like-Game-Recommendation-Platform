@@ -655,13 +655,13 @@ function GameDetail() {
         // 在这里处理暂停逻辑
         if (videoPlay) {
             setIsPaused(true); // 当视频播放时停止轮播
+        } else if (isModalOpen) {
+            setIsPaused(true); // 查看图像时停止轮播
         } else if (pauseDueToHover) {
             setIsPaused(true); // 鼠标悬停时停止轮播
         } else if (videoEnded) {
             setIsPaused(false); // 视频结束后恢复轮播
-        } else if (isModalOpen) {
-            setIsPaused(true); // 查看图像时停止轮播
-        } else {
+        }  else {
             setIsPaused(false); // 其他情况下继续轮播
         }
     }, [videoPlay, pauseDueToHover, videoEnded, isModalOpen]); // 更新依赖列表以包含 videoPlay
