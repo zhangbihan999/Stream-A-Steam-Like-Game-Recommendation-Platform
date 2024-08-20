@@ -20,6 +20,7 @@
     "@langchain/community": "^0.2.20",
     "@langchain/mistralai": "^0.0.26",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/ssr": "^0.5.0",
     "@supabase/supabase-js": "^2.44.4",
     "@svgr/webpack": "^8.1.0",
     "@types/hoist-non-react-statics": "^3.3.5",
