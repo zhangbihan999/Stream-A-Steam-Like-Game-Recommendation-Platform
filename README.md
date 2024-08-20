@@ -9,8 +9,6 @@
   <img src="https://asdfdasgasd.oss-cn-chengdu.aliyuncs.com/typora_pictures/202408202322813.png">
 </p>
 
-<br/>
-
 ## Quick Start
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
