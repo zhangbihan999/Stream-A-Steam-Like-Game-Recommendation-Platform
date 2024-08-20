@@ -5,9 +5,9 @@
     &#128568; <a href="https://www.youtube.com/watch?v=IxnQsugQXB4">Demo Video</a> • 
   </p>
 </div>
-![image-20240820232214418](https://asdfdasgasd.oss-cn-chengdu.aliyuncs.com/typora_pictures/202408202322813.png)
-
-<br/>
+<p align="center">
+  <img src="https://asdfdasgasd.oss-cn-chengdu.aliyuncs.com/typora_pictures/202408202322813.png">
+</p>
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ Actually, there are many other modules need to be downloaded before you can run 
 
 ## Code Structure (Only src)
 
-- `app`/
+- `app/`
 
 	- `dashboard/`
 		- `favo/page.tsx`: The content of page “个人中心”
