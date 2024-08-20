@@ -6,7 +6,6 @@ import styled from '@emotion/styled';
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from "@/lib/api";
 import { useRouter } from 'next/navigation'; // 从 next/navigation 导入 useRouter
-import { fetchGeneratedText } from '../../api/vercelAISDK/route'; 
 import axios from 'axios'; // 导入 axios
 
 const BackgroundDiv = styled.div`
@@ -164,7 +163,7 @@ export default function Home() {
     };
 
     const handleSendMessage = async () => {
-        if (input.trim()) {
+        /* if (input.trim()) {
             const newMessage = {
                 text: input,
                 isUser: true,
@@ -175,7 +174,6 @@ export default function Home() {
             try {
                 const response = await axios.post('http://localhost:5000/query', { input });
                 const generatedText = response.data;
-                /* const generatedText = await fetchGeneratedText(input);   */
                 setMessages(prevMessages => [
                     ...prevMessages,
                     { text: generatedText, isUser: false }  // 显示 AI 的回答
@@ -183,7 +181,7 @@ export default function Home() {
             } catch (error) {
                 console.error('Failed to get response from AI model:', error);
             }
-        }
+        } */
     };
 
     const handleInputChange = (e) => {
