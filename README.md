@@ -5,7 +5,7 @@
     &#128568; <a href="https://www.youtube.com/watch?v=IxnQsugQXB4">Demo Video</a> • 
   </p>
 </div>
-<img src="/readme_show.png" alt="" style={{ width: '125px', height: '100px' }}/>
+![](/readme_show.png)
 
 <br/>
 
