@@ -198,7 +198,7 @@ const DraggableContainer = ({ id, index, moveContainer, children }) => {
 };
 
 /* 主界面 */
-const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl }) => {
+export default function Home() {
   const { user, logout, setUser } = useUserStore();   /* 用户状态 */
   const { game, setGame, exit } = useGameStore();  /* 游戏状态 */
   // 定义用户信息
@@ -429,9 +429,9 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className="ml-4">
+                                        {/* <div className="ml-4">
                                             <ImageButton imageUrl={"/my-image.png"} onClick={CustomElement} />
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </FlexContainer>
                             </FormContainer>
@@ -445,5 +445,3 @@ const CustomElement: React.FC<CustomElementProps> = ({ imageUrl, buttonStyleUrl 
 
 );
 };
-
-export default CustomElement;
